@@ -23,7 +23,7 @@ jobs:
       # Step 3: Create .env file for main application
       - name: Create .env file
         run: |
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL}}" >> .env
+          echo "VITE_BASE_URL=${{secrets.VITE_BASE_URL}}" >> .env
           cat .env
 
       # Step 4: Install dependencies and build the React app
