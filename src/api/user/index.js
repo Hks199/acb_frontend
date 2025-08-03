@@ -5,8 +5,8 @@ export const getUserById = async(userId) => {
     const response = await axiosClient.post("users/getuser-byid/" + userId, {});
     return response;
   } catch (error) {
-    console.error('Failed to signup:', error);
-    // throw error;
+    // console.error('Failed to signup:', error);
+    throw error;
   }
 };
 
@@ -15,8 +15,8 @@ export const getUserByAuthToken = async() => {
     const response = await axiosClient.get("users/getUserByAuthToken");
     return response;
   } catch (error) {
-    console.log('Failed to signup:', error);
-    // throw error;
+    // console.log('Failed to signup:', error);
+    throw error;
   }
 };
 
@@ -25,8 +25,8 @@ export const updateUser = async(userId, payload) => {
     const response = await axiosClient.patch("users/update-user/" + userId, payload);
     return response;
   } catch (error) {
-    console.error('Failed to signup:', error);
-    // throw error;
+    // console.error('Failed to signup:', error);
+    throw error;
   }
 };
 

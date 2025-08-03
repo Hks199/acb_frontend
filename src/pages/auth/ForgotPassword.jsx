@@ -20,7 +20,7 @@ const ForgotPassword = () => {
         navigate('/verify-otp', { state: {email, signup: false}});
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     } finally {
       setLoading(false)
     }

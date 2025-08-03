@@ -6,7 +6,7 @@ import rightGradient from '../assets/landing/right-gradient.png';
 import leftDots from '../assets/landing/left-dots.svg';
 import rightDots from '../assets/landing/right-dots.svg';
 import ArtGalleryImg from '../assets/landing/art-gallery.png';
-
+import logo from "../assets/logo.jpeg";
 import { useNavigate, Link, useLocation } from 'react-router';
 import Marquee from "react-fast-marquee";
 import { getAllCategories, getAllProducts } from '../api/products';
@@ -111,6 +111,9 @@ const Homepage = () => {
             <div className='h-[100vh] flex justify-center items-center z-10'>
                 <motion.div animate={{opacity: visible ? 1 : 0, y: visible ? 0 : -20}} className='z-20'>
                     <div className='text-center text-[21px] md:text-[37px] font-bold'>
+                        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.6}} className='w-full flex md:hidden justify-center'>
+                            <img src={logo} className='mb-6 h-40' />
+                        </motion.div>
                         <motion.div initial={{x:-100, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}>Unique. Timeless. <span className='text-[#7A38FF]'>Handmade</span>.</motion.div>
                         <motion.div initial={{x: 200, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}><span className='text-[#FF5E5E]'>Art</span> that feels like home.</motion.div>
                         <motion.div initial={{x:-100, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}>Discover <span className='text-[#FFC336]'>beauty</span> in every piece.</motion.div>
@@ -216,15 +219,20 @@ const Homepage = () => {
 
             <div id='about' className='mt-20 w-full text-center relative'>
                 <div className='mb-3 text-2xl font-semibold'>Our Gallery</div>
-                <div className='px-2'>A curated journey through handcrafted art that transforms walls into windows of expression</div>
+                {/* <div className='px-2'>A curated journey through handcrafted art that transforms walls into windows of expression</div> */}
+                <div className='w-full flex justify-center'>
+                    <div className='px-2 md:w-[65%]'>Art and craft from Bharat is an unique idea and a platform to provide an incomparable space for the different artists and artisans to support each- other and grow as a community.</div>
+                </div>
 
                 <div className='mt-8 flex flex-col md:flex-row justify-center items-center'>
                     <img src={ArtGalleryImg} className='md:mr-16 w-[85%] md:w-[35%] object-contain' />
                     <div className='mt-8 md:mt-0 text-center w-[90%] md:w-[40%]'>
                         <div  className='mb-6 font-semibold text-xl'>More Than a Gallery – A Space Where Imagination, Talent, and Culture Intersect</div>
-                        <div>Art holds the ability to stir emotion, provoke thought, and leave a lasting impression. A curated collection offers more than visual appeal—it becomes a space where different cultures, ideas, and expressions quietly coexist.</div>
-                        <div className='my-6'>Rather than drawing attention to a single artwork, the space invites exploration across styles, mediums, and themes. Subtle compositions and bold statements sit side by side, encouraging viewers to engage with contrasts and connections.</div>
-                        <div>This gallery experience is shaped not by what is seen at first glance, but by what unfolds over time—how ideas shift, how details emerge, how meaning evolves with every visit. It is a journey through artistic expression, free from fixed interpretation, where every person brings their own lens to the encounter.</div>
+                        <div>To preserve the cultural diversity, richness, uniqueness and vastness exhibited in various art forms and also to promote the evolving richness in the local craftmanship.</div>
+                        <div className='mt-6'>“The transforming journey of arts from various places on a single window" encapsulates the idea of experiencing diverse artistic expressions and cultural narratives in a unified and accessible way, often through digital platforms or curated exhibitions. This can involve showcasing traditional art forms alongside contemporary works, highlighting the evolution of artistic styles, and exploring themes that resonate across different cultures.</div>
+                        {/* <div>Art holds the ability to stir emotion, provoke thought, and leave a lasting impression. A curated collection offers more than visual appeal—it becomes a space where different cultures, ideas, and expressions quietly coexist.</div> */}
+                        {/* <div className='my-6'>Rather than drawing attention to a single artwork, the space invites exploration across styles, mediums, and themes. Subtle compositions and bold statements sit side by side, encouraging viewers to engage with contrasts and connections.</div> */}
+                        {/* <div>This gallery experience is shaped not by what is seen at first glance, but by what unfolds over time—how ideas shift, how details emerge, how meaning evolves with every visit. It is a journey through artistic expression, free from fixed interpretation, where every person brings their own lens to the encounter.</div> */}
                     </div>
                 </div>
             </div>

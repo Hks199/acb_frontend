@@ -31,7 +31,7 @@ const VerifyScreen = () => {
         alert("Wrong OTP!")
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     } finally {
       setLoading(false)
     }

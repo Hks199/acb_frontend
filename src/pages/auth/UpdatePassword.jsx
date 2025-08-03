@@ -14,7 +14,7 @@ const UpdatePassword = () => {
 
   const handleUpdate = async () => {
     setLoading(true);
-    console.log(state)
+    // console.log(state)
     const reqBody = { email: state, newPassword, confirmPassword }
 
     try {
@@ -24,7 +24,7 @@ const UpdatePassword = () => {
         navigate('/login');
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     } finally {
       setLoading(false)
     }

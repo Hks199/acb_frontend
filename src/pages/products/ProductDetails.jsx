@@ -7,13 +7,13 @@ import { FaCheck } from "react-icons/fa6";
 import Rating from '@mui/material/Rating';
 import { Link, useParams, useNavigate } from 'react-router';
 import { getCategoryById, getProductDetails, getProductsByCategory } from '../../api/products';
-import { createReview, getReviewsByProductId } from '../../api/ratings';
+import { getReviewsByProductId } from '../../api/ratings';
 import useUserHook from '../../context/UserContext';
 import { addToCart } from '../../api/cart';
 import ImageMagnifier from './ImageMagnifier';
 import parse from 'html-react-parser';
 import Pagination from '@mui/material/Pagination';
-import { createOrder } from '../../api/orders';
+import { createOrder, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
 
 
@@ -145,6 +145,16 @@ const ProductDetails = () => {
         return formattedDate;
     }
 
+    const verifyPayment = async(reqBody) => {
+        try{
+          const resp = await paymentVerificationApi(reqBody);
+          if(resp && resp.data){
+            // console.log(resp?.data);
+          }
+        }
+        catch(err){}
+      }
+
     const buyProduct = async() => {
         if(!user){
             navigate("/login");
@@ -210,9 +220,12 @@ const ProductDetails = () => {
           description: "Transaction",
           order_id: resp.data.razorpayOrder.id,
           handler: function (response) {
-            // alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
-            // console.log(`Payment successful! Payment ID: ${response.razorpay_payment_id}`)
-            // console.log("Razorpay resp:", response)
+            const verifyPayload = {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            }
+            verifyPayment(verifyPayload);
             notifyToaster("Order confirmed. Thank you for your purchase!");
             navigate("/orders");
           },

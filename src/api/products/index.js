@@ -5,8 +5,8 @@ export const getAllCategories = async () => {
     const response = await axiosClient.get("category/getAllCategories");
     return response;
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    // throw error;
+    // console.error('Failed to fetch categories:', error);
+    throw error;
   }
 };
 
@@ -15,8 +15,8 @@ export const getCategoryById = async (categoryId) => {
     const response = await axiosClient.get("category/getCategoryById/" + categoryId);
     return response;
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    // throw error;
+    // console.error('Failed to fetch categories:', error);
+    throw error;
   }
 };
 
@@ -25,8 +25,8 @@ export const getAllProducts = async (payload) => {
     const response = await axiosClient.post("inventory/getProduct-sortedbyReview", payload);
     return response;
   } catch (error) {
-    console.error('Failed to fetch products:', error);
-    // throw error;
+    // console.error('Failed to fetch products:', error);
+    throw error;
   }
 };
 
@@ -35,8 +35,8 @@ export const getProductsByCategory = async (payload) => {
     const response = await axiosClient.post("inventory/getProductsByCategoryId", payload);
     return response;
   } catch (error) {
-    console.error('Failed to fetch products:', error);
-    // throw error;
+    // console.error('Failed to fetch products:', error);
+    throw error;
   }
 };
 

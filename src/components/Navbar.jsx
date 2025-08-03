@@ -32,7 +32,7 @@ const navItems = [
   { title: 'Home', path: '/' },
   { title: 'Products', path: '/products' },
   { title: 'About Us', path: '/#about' },
-  { title: 'Art Gallery', path: '/art-gallery' },
+  { title: 'Artist Masterpiece', path: '/art-gallery' },
   { title: 'Contact Us', path: '/#contact' },
 ];
 

@@ -12,7 +12,7 @@ export const createReview = async(payload) => {
 
 export const getReviewsByProductId = async(productId, payload) => {
   try {
-    const response = await axiosClient.get("review/getReviewsByProduct/" + productId);
+    const response = await axiosClient.post("review/getReviewsByProduct/" + productId, payload);
     return response;
   } catch (error) {
     // console.error('Failed to signup:', error);

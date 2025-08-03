@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaFacebookF } from "react-icons/fa";
+import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import logo from "../assets/logo.jpeg";
 import { useNavigate } from "react-router";
@@ -19,6 +19,11 @@ const Footer = () => {
     const handleInsta = () => {
         const instaLink = 'https://www.instagram.com/acb_artandcraftfrombharat?igsh=djlicHJhZDF2eXcy';
         window.open(instaLink, '_blank'); // Opens in new tab
+    };
+
+    const handleWhatsapp = () => {
+        const whatsappLink = 'https://wa.me/919211322707';
+        window.open(whatsappLink, '_blank'); // Opens in new tab
     };
 
     const fetchCategories = async() => {
@@ -73,8 +78,11 @@ const Footer = () => {
                                 <div onClick={handleFb} className='w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
                                     <FaFacebookF style={{color:"#FC3778"}}/>
                                 </div>
-                                <div onClick={handleInsta} className='ml-2 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
+                                <div onClick={handleInsta} className='mx-2 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
                                     <RiInstagramFill style={{color:"#FC3778"}}/>
+                                </div>
+                                <div onClick={handleWhatsapp} className='w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
+                                    <FaWhatsapp style={{color:"#FC3778"}}/>
                                 </div>
                             </div>
                         </div>

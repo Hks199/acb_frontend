@@ -23,6 +23,7 @@ const CustomerOrder = () => {
   const [orderDetail, setOrderDetail] = useState(null);
   const inputRef = useRef(null);
   const [previewArr, setPreviewArr] = useState([]);
+  const [imgArr, setImgArr] = useState([]);
   const [selectedTab, setSelectedTab] = useState(1);
   const [pages, setPages] = useState({ totalPages: 1, currentPage: 1, totalPages2: 1, currentPage2: 1, totalPages3: 1, currentPage3: 1 });
   const [openDialog, setOpenDialog] = useState(false);
@@ -88,12 +89,17 @@ const CustomerOrder = () => {
     // Create a temporary URL for preview
     const imagePreview = URL.createObjectURL(file);
     setPreviewArr((prev) => ([...prev, imagePreview]));
+    // setPreviewArr((prev) => ([...prev, file]));
+    setImgArr((prev) => ([...prev, file]));
   };
 
   const removeImg = (idx) => {
     const arr = [...previewArr];
+    const arr2 = [...imgArr];
     arr.splice(idx, 1);
+    arr2.splice(idx, 1);
     setPreviewArr(arr);
+    setImgArr(arr2);
   }
 
   const handleCancel = (order) => {
@@ -189,7 +195,12 @@ const CustomerOrder = () => {
     }
     else{
       formData.append("returnReason", reason);
-      formData.append("returnImages", "")
+      // formData.append("returnImages", [img1]);
+      imgArr.forEach((file) => {
+        if (file instanceof File) {
+          formData.append("returnImages", file); // or "returnImages[]" depending on backend
+        }
+      });
     }
 
     try{

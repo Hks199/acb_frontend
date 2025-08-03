@@ -23,7 +23,7 @@ const Signup = () => {
                 navigate('/verify-otp', { state: {email: form.email, signup: true}});
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
         } finally {
             setLoading(false)
         }
