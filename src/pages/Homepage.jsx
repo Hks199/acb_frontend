@@ -221,7 +221,7 @@ const Homepage = () => {
                 <div className='mb-3 text-2xl font-semibold'>Our Gallery</div>
                 {/* <div className='px-2'>A curated journey through handcrafted art that transforms walls into windows of expression</div> */}
                 <div className='w-full flex justify-center'>
-                    <div className='px-2 md:w-[65%]'>Art and craft from Bharat is an unique idea and a platform to provide an incomparable space for the different artists and artisans to support each- other and grow as a community.</div>
+                    <div className='px-2 md:w-[65%]'>ACB Art and craft from Bharat is an unique idea and a platform to provide an incomparable space for the different artists and artisans to support each- other and grow as a community.</div>
                 </div>
 
                 <div className='mt-8 flex flex-col md:flex-row justify-center items-center'>

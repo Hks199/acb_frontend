@@ -419,11 +419,11 @@ const OtherOrderList = ({order}) => {
           <div className="flex flex-col md:flex-rowjustify-between md:justify-start px-6 py-4 bg-gray-100">
             <div className='mb-3 md:mb-0 md:w-[20%]'>
               <p className="text-sm text-gray-500">Order ID</p>
-              <p className="font-medium">{order.order_id}</p>
+              <p className="font-medium">{order.orderId}</p>
             </div>
             <div className='mb-3 md:mb-0 md:w-[20%]'>
               <p className="text-sm text-gray-500">Date</p>
-              <p className="font-medium">{getDateFormat(order.orderedAt)}</p>
+              <p className="font-medium">{getDateFormat(order.returnedAt ? order.returnedAt : order.cancelledAt)}</p>
             </div>
             <div className='md:w-[20%]'>
               <p className="text-sm text-gray-500">Total Amount</p>
@@ -434,11 +434,11 @@ const OtherOrderList = ({order}) => {
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-t border-gray-300 px-6 py-4">
                 <div className="mb-4 md:mb-0 flex items-center gap-4">
                   <img
-                    src={order.product_image}
+                    src={order.product_image ? order.product_image : order?.product?.imageUrls[0]}
                     className={`w-12 h-12 rounded-md text-white flex items-center justify-center text-lg font-medium`}
                   />
                   <div>
-                    <p className="font-medium text-sm">{order.product_name}</p>
+                    <p className="font-medium text-sm">{order.product_name ? order?.product_name : order?.product?.product_name}</p>
                     {order.variant_combination && (
                       <div>
                         <p className="text-xs text-gray-500">

@@ -248,11 +248,21 @@ const ProductDetails = () => {
       }
         }
         catch(err){
-            notifyError();
+            if(err?.response?.data?.message  === "400"){
+                notifyToaster("Product is out of stock");
+            }
+            else{
+                notifyError();
+            }
         }
     }
 
     const handleCart = async() => {
+        if(!user){
+            notifyToaster("Please login to continue!");
+            return;
+        }
+
         const reqBody = {
             user_id: user.userId,
             product_id: id,
@@ -300,6 +310,7 @@ const ProductDetails = () => {
                         ))}
                     </div>
                     <ImageMagnifier src={productImgs[0]} width={"75%"} height={isVarient ? 550 : 475}/>
+                    {/* <img src={productImgs[0]} className={`w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} object-cover rounded`}/> */}
                     {/* <img src={productDetail.imageUrls[0]} className={`w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} object-cover rounded`}/> */}
                 </div>
 
@@ -311,8 +322,8 @@ const ProductDetails = () => {
 
                     {/* Availability */}
                     <div className='flex items-center'>
-                        <div className={`px-3 py-0.5 my-2 md:my-4 mr-3 ${productDetail.isActive ? "text-[#027A48] bg-[#ECFDF3]" : "text-[#ff5469] bg-[#ffe8eb]" } font-medium flex items-center rounded-full`}>
-                            <span className={`mr-2 w-2 h-2 ${productDetail.isActive ? "bg-[#12B76A]" : "bg-[#ff5469]"} rounded-full`}></span> {productDetail.isActive ? "Available" : "Not Available"}
+                        <div className={`px-3 py-0.5 my-2 md:my-4 mr-3 ${(productDetail.isActive && productDetail.stock > 0) ? "text-[#027A48] bg-[#ECFDF3]" : "text-[#ff5469] bg-[#ffe8eb]" } font-medium flex items-center rounded-full`}>
+                            <span className={`mr-2 w-2 h-2 ${(productDetail.isActive && productDetail.stock > 0) ? "bg-[#12B76A]" : "bg-[#ff5469]"} rounded-full`}></span> {(productDetail.isActive && productDetail.stock > 0) ? "Available" : "Not Available"}
                         </div>
                         ({ratings.review}) <IoIosStar color='#FFD119' size={20} style={{marginRight:5, marginBottom:3}}/> <div className=''>Reviews</div>
                     </div>
@@ -322,7 +333,7 @@ const ProductDetails = () => {
 
                 {/* Features */}
                 <ul className="my-4 space-y-1.5 text-[#52525B]">
-                    <li className="flex items-center gap-2"><IoEarthOutline /> Free shipping worldwide</li>
+                    <li className="flex items-center gap-2"><IoEarthOutline /> Free shipping all over India</li>
                     <li className="flex items-center gap-2"><MdOutlinePayment /> 100% Secured Payment</li>
                     <li className="flex items-center gap-2"><IoPersonOutline /> Made by the Professionals</li>
                 </ul>

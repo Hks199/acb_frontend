@@ -5,7 +5,7 @@ import { calculateCartTotalAmount, clearCartApi, getCartbyId, removeCartItem, up
 import useUserHook from "../../context/UserContext";
 import { createOrder, paymentVerificationApi } from "../../api/orders";
 import { useNavigate } from "react-router";
-import { notifyToaster } from "../../components/notifyToaster";
+import { notifyError, notifyToaster } from "../../components/notifyToaster";
 
 
 const Cart = () => {
@@ -166,13 +166,26 @@ const Cart = () => {
         rzp.open();
 
         rzp.on('payment.failed', (errResp) => {
-          // console.log("Payment failed: ", errResp);
-          notifyToaster("Payment failed: " + errResp.error.description);
+          notifyToaster("Payment failed: " + errResp?.error?.description);
         })
       }
     }
     catch(err){
-      notifyError();
+      if(err?.response?.data?.message  === "400"){
+        const str = err?.response?.data?.errorType;
+        const matches = str.match(/[a-zA-Z0-9]+/g);
+        const lastSequence = matches ? matches[matches.length - 1] : null;
+        const prdName = cartItems.find((obj) => obj.product._id === lastSequence)?.product.name;
+        if(prdName){
+          notifyToaster( prdName + " is out of stock");
+        }
+        else{
+          notifyError();
+        }
+      }
+      else{
+        notifyError();
+      }
     }
   }
 

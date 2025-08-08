@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import InfoComponent from './InfoComponent';
 import { signupAccount } from '../../api/authentication';
+import { notifyToaster } from '../../components/notifyToaster';
 
 const Signup = () => {
     const [form, setForm] = useState({ first_name: '', email: '', mobile_number: '', password: '', role: "Customer" });
@@ -23,7 +24,7 @@ const Signup = () => {
                 navigate('/verify-otp', { state: {email: form.email, signup: true}});
             }
         } catch (err) {
-            // console.log(err);
+            notifyToaster(err?.response?.data?.message);
         } finally {
             setLoading(false)
         }

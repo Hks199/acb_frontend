@@ -73,7 +73,7 @@ const ImageMagnifier = ({ src, zoom = 2, width = 400, height = 400 }) => {
       style={{
         // width,
         height,
-        backgroundImage: `url(${src})`,
+        backgroundImage: `url("${src}")`,
         backgroundSize: isZoomed ? `${zoom * 100}%` : 'cover',
         backgroundPosition: backgroundPosition,
       }}

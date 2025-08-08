@@ -4,6 +4,7 @@ import InfoComponent from './InfoComponent'
 import { loginAccount } from '../../api/authentication'
 import { setToken } from '../../helper'
 import useUserHook from '../../context/UserContext'
+import { notifyToaster } from '../../components/notifyToaster'
 
 const Login = () => {
   const { setIsAuth } = useUserHook();
@@ -19,7 +20,6 @@ const Login = () => {
 
     try {
       const response = await loginAccount(reqBody);
-      // console.log("Resp:", response.data);
       if(response && response.data && response.data.success){
         setToken(response.data.token);
         navigate('/');
@@ -32,7 +32,7 @@ const Login = () => {
         // })
       }
     } catch (err) {
-      // console.log(err);
+      notifyToaster(err?.response?.data?.message);
     } finally {
       setLoading(false)
     }
