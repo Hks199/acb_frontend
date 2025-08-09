@@ -175,9 +175,21 @@ const Cart = () => {
         const str = err?.response?.data?.errorType;
         const matches = str.match(/[a-zA-Z0-9]+/g);
         const lastSequence = matches ? matches[matches.length - 1] : null;
-        const prdName = cartItems.find((obj) => obj.product._id === lastSequence)?.product.name;
+        const prdName = cartItems.find((obj) => obj?.product?._id === lastSequence)?.product.name;
         if(prdName){
-          notifyToaster( prdName + " is out of stock");
+          notifyToaster(prdName + " is out of stock");
+        }
+        else{
+          notifyError();
+        }
+      }
+      else if(err?.response?.data?.errorType === "OutOfStock"){
+        const str = err?.response?.data?.message;
+        const matches = str.match(/[a-zA-Z0-9]+/g);
+        const lastSequence = matches ? matches[matches.length - 1] : null;
+        const prdName = cartItems.find((obj) => obj?.variant?._id === lastSequence ? obj : null);
+        if(prdName?.product?.name){
+          notifyToaster(`We’re sorry — the selected variant of ${prdName?.product?.name} is unavailable!`);
         }
         else{
           notifyError();

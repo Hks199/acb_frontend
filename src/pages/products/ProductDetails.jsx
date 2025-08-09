@@ -15,6 +15,8 @@ import parse from 'html-react-parser';
 import Pagination from '@mui/material/Pagination';
 import { createOrder, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
+import ReactImageMagnify from 'react-image-magnify';
+import ImgMag from './ImgMag';
 
 
 const ProductDetails = () => {
@@ -249,7 +251,10 @@ const ProductDetails = () => {
         }
         catch(err){
             if(err?.response?.data?.message  === "400"){
-                notifyToaster("Product is out of stock");
+                notifyToaster("Product is out of stock!");
+            }
+            else if(err?.response?.data?.errorType === "OutOfStock"){
+                notifyToaster("We’re sorry — the selected variant is unavailable!");
             }
             else{
                 notifyError();
@@ -309,8 +314,33 @@ const ProductDetails = () => {
                             </>
                         ))}
                     </div>
-                    <ImageMagnifier src={productImgs[0]} width={"75%"} height={isVarient ? 550 : 475}/>
-                    {/* <img src={productImgs[0]} className={`w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} object-cover rounded`}/> */}
+                    {/* <ImageMagnifier src={productImgs[0]} width={"75%"} height={isVarient ? 550 : 475}/> */}
+                    <div className={`relative w-full md:w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} bg-gray-200 rounded flex justify-center items-center`}>
+                        {/* <img src={productImgs[0]} className={`h-full object-contain`}/> */}
+                        {/* <ReactImageMagnify {...{
+                                smallImage: {
+                                    alt: 'Wristwatch by Ted Baker London',
+                                    isFluidWidth: true,
+                                    src: productImgs[0]
+                                },
+                                largeImage: {
+                                    src: productImgs[0],
+                                    width: 1200,
+                                    height: 1800
+                                }
+                            }} /> */}
+
+                            <ImgMag 
+                                src={productImgs[0]}
+                                width={"100%"}
+                                height={"100%"}
+                                magnifierHeight={150}
+                                magnifierWidth={150}
+                                zoomLevel={2}
+                                alt=""
+                            />
+                    </div>
+
                     {/* <img src={productDetail.imageUrls[0]} className={`w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} object-cover rounded`}/> */}
                 </div>
 

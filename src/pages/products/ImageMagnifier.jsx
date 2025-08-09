@@ -76,6 +76,8 @@ const ImageMagnifier = ({ src, zoom = 2, width = 400, height = 400 }) => {
         backgroundImage: `url("${src}")`,
         backgroundSize: isZoomed ? `${zoom * 100}%` : 'cover',
         backgroundPosition: backgroundPosition,
+        // backgroundSize:'contain',
+        // backgroundRepeat:"no-repeat"
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsZoomed(true)}
