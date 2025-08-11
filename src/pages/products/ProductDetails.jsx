@@ -15,7 +15,6 @@ import parse from 'html-react-parser';
 import Pagination from '@mui/material/Pagination';
 import { createOrder, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
-import ReactImageMagnify from 'react-image-magnify';
 import ImgMag from './ImgMag';
 
 
@@ -317,18 +316,6 @@ const ProductDetails = () => {
                     {/* <ImageMagnifier src={productImgs[0]} width={"75%"} height={isVarient ? 550 : 475}/> */}
                     <div className={`relative w-full md:w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} bg-gray-200 rounded flex justify-center items-center`}>
                         {/* <img src={productImgs[0]} className={`h-full object-contain`}/> */}
-                        {/* <ReactImageMagnify {...{
-                                smallImage: {
-                                    alt: 'Wristwatch by Ted Baker London',
-                                    isFluidWidth: true,
-                                    src: productImgs[0]
-                                },
-                                largeImage: {
-                                    src: productImgs[0],
-                                    width: 1200,
-                                    height: 1800
-                                }
-                            }} /> */}
 
                             <ImgMag 
                                 src={productImgs[0]}
