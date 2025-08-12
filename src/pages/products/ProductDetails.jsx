@@ -10,7 +10,6 @@ import { getCategoryById, getProductDetails, getProductsByCategory } from '../..
 import { getReviewsByProductId } from '../../api/ratings';
 import useUserHook from '../../context/UserContext';
 import { addToCart } from '../../api/cart';
-import ImageMagnifier from './ImageMagnifier';
 import parse from 'html-react-parser';
 import Pagination from '@mui/material/Pagination';
 import { createOrder, paymentVerificationApi } from '../../api/orders';
@@ -313,22 +312,21 @@ const ProductDetails = () => {
                             </>
                         ))}
                     </div>
-                    {/* <ImageMagnifier src={productImgs[0]} width={"75%"} height={isVarient ? 550 : 475}/> */}
-                    <div className={`relative w-full md:w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} bg-gray-200 rounded flex justify-center items-center`}>
-                        {/* <img src={productImgs[0]} className={`h-full object-contain`}/> */}
-
-                            <ImgMag 
-                                src={productImgs[0]}
-                                width={"100%"}
-                                height={"100%"}
-                                magnifierHeight={150}
-                                magnifierWidth={150}
-                                zoomLevel={2}
-                                alt=""
-                            />
+                    <div className={`relative w-full md:w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} bg-gray-200 rounded hidden md:flex justify-center items-center`}>
+                        <ImgMag 
+                            src={productImgs[0]}
+                            width={"100%"}
+                            height={"100%"}
+                            magnifierHeight={150}
+                            magnifierWidth={150}
+                            zoomLevel={2}
+                            alt=""
+                        />
                     </div>
 
-                    {/* <img src={productDetail.imageUrls[0]} className={`w-[75%] ${isVarient ? "h-[550px]" : "h-[475px]"} object-cover rounded`}/> */}
+                    <div className={`w-full ${isVarient ? "h-[550px]" : "h-[475px]"} bg-gray-200 rounded flex md:hidden justify-center items-center`}>
+                        <img src={productImgs[0]} className={`h-full object-contain`}/>
+                    </div>
                 </div>
 
                 {/* Right Section */}

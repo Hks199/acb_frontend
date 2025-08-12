@@ -23,6 +23,7 @@ const Login = () => {
       if(response && response.data && response.data.success){
         setToken(response.data.token);
         navigate('/');
+        window.location.reload();
         setIsAuth(true); //this will automatically call the getUserByAuthToken in app.jsx
         // getUserByAuthToken()
         // .then((resp) => {})

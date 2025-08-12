@@ -4,12 +4,14 @@ import { RiInstagramFill } from "react-icons/ri";
 import logo from "../assets/logo.jpeg";
 import { useNavigate } from "react-router";
 import { getAllCategories } from "../api/products";
+import OpenImage from "./OpenImage";
 
 
 const Footer = () => {
     const navigate = useNavigate();
     const [categoryList, setCategoryList] = useState([]);
     const [categoryIdAndName, setCategoryIdAndName] = useState({});
+    const [openImg, setOpenImg] = useState(false);
 
     const handleFb = () => {
         const fbLink = 'https://www.facebook.com/profile.php?id=61577898151078';
@@ -49,7 +51,7 @@ const Footer = () => {
                 <div className='flex flex-col md:flex-row items-start justify-between'>
     
                     <div className='w-full md:w-[33%]'>
-                        <img src={logo} className="h-18" />
+                        <img src={logo} className="h-18 cursor-pointer" onClick={() => setOpenImg(true)} />
                         <div className='mt-3 text-white'>Explore timeless, handcrafted pieces created by skilled artisans—each one infused with heart, heritage, and creativity, woven together to bring meaning, beauty, and story into every detail. Every creation tells a story rooted in tradition and shaped by hand. Our collection celebrates the artistry and soul behind each handmade piece.</div>
                     </div>
                     
@@ -91,7 +93,9 @@ const Footer = () => {
     
                 <div className='my-4 w-full h-[1px] bg-white'></div>
                 <div className='text-white text-center'>Copyright © 2025. All rights reserved</div>
-            </div>
+
+        <OpenImage openImg={openImg} setOpenImg={setOpenImg}/>
+    </div>
   )
 }
 

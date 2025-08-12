@@ -25,6 +25,7 @@ const VendorList = () => {
     }
 
     useEffect(() => {
+        window.scrollTo({ top: 0 });
         fetchAllVendors(1);
     }, [])
 

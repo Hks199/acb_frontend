@@ -15,6 +15,7 @@ const AllProducts = () => {
 
 
     useEffect(() => {
+        window.scrollTo({ top: 0});
         fetchCategories();
         selectCategory(state ? state.categoryId : "");
     }, [])

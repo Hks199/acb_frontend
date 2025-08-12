@@ -42,6 +42,7 @@ const Cart = () => {
   }
 
   useEffect(() => {
+    window.scrollTo({ top: 0 });
     getCartItems();
     calculateCartAmount();
   }, [])

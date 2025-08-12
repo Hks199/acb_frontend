@@ -26,6 +26,7 @@ import useUserHook from '../context/UserContext';
 import { logoutAccount } from '../api/authentication';
 
 import logo from "../assets/logo.jpeg";
+import OpenImage from './OpenImage';
 
 const drawerWidth = 240;
 const navItems = [
@@ -69,6 +70,7 @@ function Navbar(props) {
     setMobileOpen((prevState) => !prevState);
   };
 
+  const [openImg, setOpenImg] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -136,8 +138,8 @@ function Navbar(props) {
       {/* <Typography variant="h6" sx={{ my: 2 }}>
         MUI
       </Typography> */}
-      <div className='flex justify-center'>
-        <img src={logo} className='py-2 h-24'/>
+      <div className='flex justify-center cursor-pointer'>
+        <img src={logo} className='py-2 h-24' onClick={() => setOpenImg(true)}/>
       </div>
       <Divider />
       <List>
@@ -209,7 +211,7 @@ function Navbar(props) {
             <FiMenu style={{color:"#F75E69"}}/>
           </IconButton>
             <div className='pl-10 hidden sm:inline-block w-[20%]'>
-              <img src={logo} className='h-12'/>
+              <img src={logo} className='h-12 cursor-pointer' onClick={() => setOpenImg(true)}/>
             </div>
             {/* <Typography
                 variant="h6"
@@ -295,6 +297,8 @@ function Navbar(props) {
       <Box component="main" sx={{ p: 0 }}>
         <Toolbar/>
       </Box>
+
+      <OpenImage openImg={openImg} setOpenImg={setOpenImg} />
     </Box>
   );
 }

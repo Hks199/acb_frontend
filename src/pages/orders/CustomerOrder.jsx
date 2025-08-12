@@ -166,6 +166,7 @@ const CustomerOrder = () => {
   }
 
   useEffect(() => {
+    window.scrollTo({ top: 0 });
     getOrderList(1);
     getCancelledOrderList(1);
     getReturnedOrderList(1);

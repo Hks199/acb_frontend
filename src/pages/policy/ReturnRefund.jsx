@@ -1,6 +1,11 @@
-import React from 'react';
+import { useEffect } from 'react';
 
 const ReturnRefund = () => {
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [])
+
   return (
     <div className="bg-[#fffafa] min-h-screen text-gray-800 px-4 py-10 md:px-12 lg:px-28 max-w-screen-2xl mx-auto leading-relaxed">
       <div className="text-center mb-12">
