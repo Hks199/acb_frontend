@@ -11,6 +11,7 @@ export const loginAccount = async(payload) => {
   }
 };
 
+
 export const signupAccount = async(payload) => {
   try {
     const response = await axiosClient.post("users/register", payload);
