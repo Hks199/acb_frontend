@@ -10,6 +10,7 @@ const VendorList = () => {
     const [showGallery, setShowGallery] = useState("");
     const [allVendorList, setAllVendorList] = useState([]);
     const [pages, setPages] = useState({ totalPages: 1, currentPage: 1 });
+    const [cacheBuster, setCacheBuster] = useState(Date.now());
 
     const fetchAllVendors = async (pageNum) => {
         const reqBody = { page:pageNum, limit:10 }
@@ -45,7 +46,7 @@ const VendorList = () => {
             <div onClick={() => setShowGallery((prev) => prev === idx ? "" : idx)} className='p-5 mb-6 w-[90%] md:w-[80%] min-h-[100px] bg-white rounded-xl shadow-[0px_4px_30px_-15px_rgba(0,_0,_0,_0.1)]'>
                 <div className='mb-5 flex items-center'>
                     {obj?.imageUrls[0] ? (
-                        <img src={obj?.imageUrls[0]} className='w-[60px] h-[60px] rounded-full' />
+                        <img src={`${obj?.imageUrls[0]}?t=${cacheBuster}`} className='w-[60px] h-[60px] rounded-full' />
                     ) : (
                         <FaRegCircleUser style={{width:60, height: 60}}/>
                     )}
