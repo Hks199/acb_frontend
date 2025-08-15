@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import InfoComponent from './InfoComponent'
 import { loginAccount } from '../../api/authentication'
@@ -38,6 +38,10 @@ const Login = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [])
 
   return (
     <div className="p-4 min-h-[90vh] flex">

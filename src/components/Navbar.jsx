@@ -161,7 +161,7 @@ function Navbar(props) {
           </ListItem>
         ))}
 
-        {isAuth && (
+        {isAuth ? (
           <>  
             <ListItem disablePadding >
               <ListItemButton sx={{ textAlign: 'center' }}>
@@ -187,6 +187,12 @@ function Navbar(props) {
               </ListItemButton>
             </ListItem>
           </>
+        ) : (
+          <ListItem disablePadding >
+              <ListItemButton sx={{ textAlign: 'center' }}>
+                <ListItemText primary={"Login"} onClick={() => navigate("/login")} />
+              </ListItemButton>
+            </ListItem>
         )}
       </List>
     </Box>

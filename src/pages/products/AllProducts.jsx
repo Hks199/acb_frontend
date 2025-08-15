@@ -12,6 +12,7 @@ const AllProducts = () => {
     const [productList, setProductList] = useState([]);
     const [categoryIdAndName, setCategoryIdAndName] = useState({});
     const [pages, setPages] = useState({ totalPages: 1, currentPage: 1 });
+    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -34,26 +35,35 @@ const AllProducts = () => {
     }
 
     const fetchProducts = async(pageNum) => {
+        setLoading(true);
         const reqBody = { page: pageNum, limit: 16 };
 
         try{
             const resp = await getAllProducts(reqBody);
             if(resp && resp.data && resp.data.success){
                 setProductList(resp.data.products);
-                setPages({ totalPages: resp.data.totalPages, currentPage: resp.data.currentPage })    
+                setPages({ totalPages: resp.data.totalPages, currentPage: resp.data.currentPage })
             }
         } catch (err) {}
+        finally{
+            setLoading(false);
+        }
     }
 
     const fetchProductsByCategory = async(categoryId) => {
+        setLoading(true);
         const reqBody = { category_id: categoryId, page: 1, limit: 16 };
 
         try{
             const resp = await getProductsByCategory(reqBody);
             if(resp && resp.data && resp.data.success){
                 setProductList(resp.data.products);
+                setPages({ totalPages: resp.data.totalPages, currentPage: resp.data.page })
             }
         } catch (err) {}
+        finally{
+            setLoading(false);
+        }
     }
 
     const handlePagination = (event, value) => {
@@ -86,30 +96,39 @@ const AllProducts = () => {
                 ))}
             </div>
 
-            <div className="mt-6">
-                <div className="grid gap-6 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-between">
-                    {productList.map((product) => (
-                        <div className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
-                            {product.imageUrls.length > 0 && product.imageUrls[0] ? (
-                                    <img src={product.imageUrls[0]} className='h-[220px] w-full bg-[#D9D9D9] object-cover rounded'/>
-                                ) : (
-                                    <div className='p-10 h-[220px] bg-[#D9D9D9] rounded'></div>
-                                )}
-                            <div className='pt-3 text-left'>
-                                <div className='text-[#3B3B3B] text-[15px] leading-none'>{product.product_name}</div>
-                                <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[product.category_id]}</div>
-                                <div className='mt-4 flex justify-between items-center'>
-                                    <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {product.price}</div>
-                                    <Link to={`/product/${product._id}`} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</Link>
+            {loading ? (
+                <div className="w-full h-[65vh] flex justify-center items-center">
+                    <div className="loader">
+                        <span className="loader-text">loading</span>
+                        <span className="load"></span>
+                    </div>
+                </div>
+            ) : (
+                <div className="mt-6">
+                    <div className="grid gap-6 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-between">
+                        {productList.map((product) => (
+                            <div className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
+                                {product.imageUrls.length > 0 && product.imageUrls[0] ? (
+                                        <img src={product.imageUrls[0]} className='h-[220px] w-full bg-[#D9D9D9] object-cover rounded'/>
+                                    ) : (
+                                        <div className='p-10 h-[220px] bg-[#D9D9D9] rounded'></div>
+                                    )}
+                                <div className='pt-3 text-left'>
+                                    <div className='text-[#3B3B3B] text-[15px] leading-none'>{product.product_name}</div>
+                                    <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[product.category_id]}</div>
+                                    <div className='mt-4 flex justify-between items-center'>
+                                        <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {product.price}</div>
+                                        <Link to={`/product/${product._id}`} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</Link>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                    <div className='mt-10 w-full flex justify-center'>
+                        <Pagination page={pages.currentPage} count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
+                    </div>
                 </div>
-                <div className='mt-10 w-full flex justify-center'>
-                    <Pagination count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
-                </div>
-            </div>
+            )}
         </div>
     )
 }

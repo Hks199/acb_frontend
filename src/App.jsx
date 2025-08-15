@@ -60,6 +60,7 @@ function App() {
         <Route path="/products" element={<AllProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/return-and-refund" element={<ReturnRefund />} />
+        <Route path="/art-gallery" element={<VendorList />} />
 
         {/* Protected Route */}
         <Route path="/cart" element={
@@ -77,7 +78,6 @@ function App() {
             <UserProfile />
           </ProtectedRoutes>
         } />
-        <Route path="/art-gallery" element={<VendorList />} />
 
         {/* Cannot go to /login route when user is logged in */}
         <Route path="/login" element={

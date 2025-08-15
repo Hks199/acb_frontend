@@ -288,7 +288,7 @@ const CustomerOrder = () => {
                     </div>
 
                     <div className='flex'>
-                      {(order.orderStatus === "Delivered" || order.orderStatus === "Shipped") && (
+                      {(order.orderStatus === "Delivered") && (
                         <button onClick={() => handleDialogOpen(order.product_id)} className="mr-3 flex items-center border border-[#F75E69] text-sm text-[#F75E69] font-medium rounded-md px-4 py-2">
                             Add a Review
                           </button>
@@ -298,11 +298,12 @@ const CustomerOrder = () => {
                         {order.orderStatus}
                       </div>
 
-                      {order.orderStatus === "Pending" ? (
+                      {order.orderStatus === "Pending" && (
                         <button onClick={() => handleCancel(order)} className="flex items-center border border-[#F75E69] text-sm text-[#F75E69] font-medium rounded-md px-4 py-2">
                           Cancel Order
                         </button>
-                      ) : (
+                      )}
+                      {order.orderStatus === "Delivered" && (
                         <button onClick={() => handleCancel(order)} className="flex items-center border border-[#F75E69] text-sm text-[#F75E69] font-medium rounded-md px-4 py-2">
                           Return Order
                         </button>
@@ -314,7 +315,7 @@ const CustomerOrder = () => {
           ))}
 
           <div className='mt-10 w-full flex justify-center'>
-            <Pagination count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
+            <Pagination page={pages.currentPage} count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
           </div>
         </>
       ) : selectedTab === 2 ? (
@@ -324,7 +325,7 @@ const CustomerOrder = () => {
           ))}
 
           <div className='mt-10 w-full flex justify-center'>
-            <Pagination count={pages.totalPages2} variant="outlined" shape="rounded" onChange={handlePagination2} />
+            <Pagination page={pages.currentPage2} count={pages.totalPages2} variant="outlined" shape="rounded" onChange={handlePagination2} />
           </div>
         </>
       ) : (
@@ -334,7 +335,7 @@ const CustomerOrder = () => {
           ))}
 
           <div className='mt-10 w-full flex justify-center'>
-            <Pagination count={pages.totalPages3} variant="outlined" shape="rounded" onChange={handlePagination3} />
+            <Pagination page={pages.currentPage3} count={pages.totalPages3} variant="outlined" shape="rounded" onChange={handlePagination3} />
           </div>
         </>
       )}

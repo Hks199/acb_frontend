@@ -199,29 +199,12 @@ const Homepage = () => {
                         </div>
                     ))}
                 </div>
-
-                {/* <div className='px-20 mt-14 grid grid-cols-4'>
-                    {[1,2,3,4,5,6,7,8].map((_) => (
-                        <div className='p-3 m-5 md:m-7 bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
-                            <div className='p-10 h-[250px] bg-[#D9D9D9] rounded'></div>
-                            <div className='pt-3 text-left'>
-                                <div className='text-[#3B3B3B]'>Wall hanging handcrafted design...</div>
-                                <div className='text-[#7B7B7B] text-[13px] font-semibold'>{"Category > Handcrafted"}</div>
-                                <div className='mt-4 flex justify-between items-center'>
-                                    <div className='text-[#3B3B3B] text-lg font-semibold'>₹ 4,350</div>
-                                    <button className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white rounded-full">Buy Now</button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div> */}
             </div>
 
             <div id='about' className='mt-20 w-full text-center relative'>
                 <div className='mb-3 text-2xl font-semibold'>Our Gallery</div>
-                {/* <div className='px-2'>A curated journey through handcrafted art that transforms walls into windows of expression</div> */}
                 <div className='w-full flex justify-center'>
-                    <div className='px-2 md:w-[65%]'>ACB Art and craft from Bharat is an unique idea and a platform to provide an incomparable space for the different artists and artisans to support each- other and grow as a community.</div>
+                    <div className='px-2 md:w-[65%]'>ACB, Art and craft from Bharat is an unique idea and a platform to provide an incomparable space for the different artists and artisans to support each- other and grow as a community.</div>
                 </div>
 
                 <div className='mt-8 flex flex-col md:flex-row justify-center items-center'>
@@ -230,9 +213,6 @@ const Homepage = () => {
                         <div  className='mb-6 font-semibold text-xl'>More Than a Gallery – A Space Where Imagination, Talent, and Culture Intersect</div>
                         <div>To preserve the cultural diversity, richness, uniqueness and vastness exhibited in various art forms and also to promote the evolving richness in the local craftmanship.</div>
                         <div className='mt-6'>“The transforming journey of arts from various places on a single window" encapsulates the idea of experiencing diverse artistic expressions and cultural narratives in a unified and accessible way, often through digital platforms or curated exhibitions. This can involve showcasing traditional art forms alongside contemporary works, highlighting the evolution of artistic styles, and exploring themes that resonate across different cultures.</div>
-                        {/* <div>Art holds the ability to stir emotion, provoke thought, and leave a lasting impression. A curated collection offers more than visual appeal—it becomes a space where different cultures, ideas, and expressions quietly coexist.</div> */}
-                        {/* <div className='my-6'>Rather than drawing attention to a single artwork, the space invites exploration across styles, mediums, and themes. Subtle compositions and bold statements sit side by side, encouraging viewers to engage with contrasts and connections.</div> */}
-                        {/* <div>This gallery experience is shaped not by what is seen at first glance, but by what unfolds over time—how ideas shift, how details emerge, how meaning evolves with every visit. It is a journey through artistic expression, free from fixed interpretation, where every person brings their own lens to the encounter.</div> */}
                     </div>
                 </div>
             </div>

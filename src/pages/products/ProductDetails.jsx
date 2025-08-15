@@ -444,7 +444,7 @@ const ProductDetails = () => {
                     ))}
 
                     <div className='mt-2 mb-10 w-full flex justify-center'>
-                        <Pagination count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
+                        <Pagination page={pages.currentPage} count={pages.totalPages} variant="outlined" shape="rounded" onChange={handlePagination} />
                     </div>
                 </div>
             )}
