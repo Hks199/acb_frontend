@@ -23,10 +23,30 @@ import PublicRoute from './pages/PublicRoute';
 import { ToastContainer } from 'react-toastify';
 import ReturnRefund from './pages/policy/ReturnRefund';
 import Loading from './components/Loading';
+import { getCartbyId } from './api/cart';
 
 
 function App() {
-  const { user, setUser, isAuth, setIsAuth, loadingUser, setLoadingUser } = useUserHook();
+  const { user, setUser, isAuth, setIsAuth, loadingUser, setLoadingUser, setCartCount } = useUserHook();
+
+  const getCartItems = async(userId) => {
+    try{
+      const resp = await getCartbyId(userId);
+      if(resp && resp.data && resp.data.success){
+        let count = 0
+        resp?.data?.cart?.items.map((obj) => {
+          count = count + parseInt(obj.quantity);
+        })
+        setCartCount(count);
+      }
+      else{
+        setCartCount(0);
+      }
+    }
+    catch(err){
+      setCartCount(0);
+    }
+  }
 
   const getUserByToken = async () => {
     try {
@@ -34,6 +54,7 @@ function App() {
       if (resp?.data?.status === "success") {
         setIsAuth(true);
         setUser({ ...resp.data.userData, userId: resp.data.userData._id });
+        getCartItems(resp.data.userData._id);
       } else {
         setIsAuth(false);
         setUser(null);
@@ -117,48 +138,3 @@ function App() {
 }
 
 export default App;
-
-
-/*
-- doc: https://reactrouter.com/start/declarative/routing
-
-<Routes>
-  <Route index element={<Home />} />
-  <Route path="about" element={<About />} />
-
-  <Route element={<AuthLayout />}>
-    <Route path="login" element={<Login />} />
-    <Route path="register" element={<Register />} />
-  </Route>
-
-  <Route path="concerts">
-    <Route index element={<ConcertsHome />} />
-    <Route path=":city" element={<City />} />
-    <Route path="trending" element={<Trending />} />
-  </Route>
-</Routes>
-
-** Nested Routing**
-"/dashboard" and "/dashboard/settings"
-
-<Routes>
-  <Route path="dashboard" element={<Dashboard />}>
-    <Route index element={<Home />} />
-    <Route path="settings" element={<Settings />} />
-  </Route>
-</Routes>
-
-- Child routes are rendered through the <Outlet/> in the parent route
-import { Outlet } from "react-router";
-
-export default function Dashboard() {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      {/* will either be <Home/> or <Settings/> 
-      <Outlet />
-    </div>
-  );
-}
-
-*/

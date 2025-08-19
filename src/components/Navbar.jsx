@@ -2,10 +2,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import Badge, { badgeClasses } from '@mui/material/Badge';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -37,9 +39,18 @@ const navItems = [
   { title: 'Contact Us', path: '/#contact' },
 ];
 
+const CartBadge = styled(Badge)`
+  & .${badgeClasses.badge} {
+    top: -12px;
+    right: -6px;
+    background-color:#F75E69;
+    color: #ffffff;
+  }
+`;
+
 function Navbar(props) {
   const { window, isAuth } = props;
-  const { setUser, setIsAuth } = useUserHook();
+  const { setUser, setIsAuth, cartCount } = useUserHook();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,16 +173,21 @@ function Navbar(props) {
         ))}
 
         {isAuth ? (
-          <>  
+          <>
             <ListItem disablePadding >
               <ListItemButton sx={{ textAlign: 'center' }}>
                 <ListItemText primary={"Profile"} onClick={goToProfile} />
               </ListItemButton>
             </ListItem>
 
-            <ListItem disablePadding >
+            <ListItem disablePadding>
               <ListItemButton sx={{ textAlign: 'center' }}>
-                <ListItemText primary={"Cart"} onClick={handleCart} />
+                <div onClick={handleCart} className='w-full flex justify-center items-center cursor-pointer'>
+                  <span>Cart</span>
+                  {isAuth && cartCount !== 0 && (
+                    <div className='ml-3 w-8 h-8 bg-[#F75E69] text-white flex justify-center items-center rounded-full'>{cartCount}</div>
+                  )}
+                </div>
               </ListItemButton>
             </ListItem>
 
@@ -212,20 +228,16 @@ function Navbar(props) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' }, color:"#424242" }}
+            sx={{ mr: 2, display: { sm: 'none' }, color:"#424242", width:"10%" }}
           >
             <FiMenu style={{color:"#F75E69"}}/>
           </IconButton>
+          <div onClick={() => navigate("/")} className='pr-[10%] w-[90%] text-[#F75E69] font-semibold text-center sm:hidden cursor-pointer'>Art & Craft from Bharat</div>
+
+
             <div className='pl-10 hidden sm:inline-block w-[20%]'>
               <img src={logo} className='h-12 cursor-pointer' onClick={() => setOpenImg(true)}/>
             </div>
-            {/* <Typography
-                variant="h6"
-                component="div"
-                sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex' }, paddingLeft:5, width:"20%", color:"#424242" }}
-            >
-                MUI
-            </Typography> */}
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent:"center", width:"60%" }}>
                 {navItems.map((item) => (
                 <Button key={item.title} onClick={() => navigate(item.path)} sx={{ color: location.pathname === item.path ? '#F75E69' : '#424242', textTransform:"capitalize", mx:2 }}>
@@ -235,8 +247,11 @@ function Navbar(props) {
             </Box>
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent:"flex-end", paddingRight:5, width:"20%", minWidth:150 }}>
-                  <IconButton onClick={handleCart}>
+                  <IconButton onClick={handleCart} style={{position:"relative"}}>
                     <FiShoppingCart color='#F75E69' />
+                    {isAuth && cartCount !== 0 && (
+                      <CartBadge badgeContent={cartCount} overlap="circular" />
+                    )}
                   </IconButton>
                     <IconButton ref={anchorRef} style={{backgroundColor:"#F5F5F5", marginLeft:10}} onClick={handleToggle}>
                       <FiUser color='#F75E69' />

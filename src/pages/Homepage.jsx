@@ -24,7 +24,7 @@ const Homepage = () => {
     const [categoryList, setCategoryList] = useState([]);
     const [productList, setProductList] = useState([]);
     const [categoryIdAndName, setCategoryIdAndName] = useState({});
-    const [contactForm, setContactForm] = useState({ first_name:"", last_name:"", phone:"", email:"", message: "", checkbox: false })
+    const [contactForm, setContactForm] = useState({ first_name:"", last_name:"", phone:"", email:"", message: "" })
 
     useEffect(() => {
         fetchCategories();
@@ -56,11 +56,6 @@ const Homepage = () => {
     }
 
     const handleContact = async() => {
-        // if(!contactForm.checkbox){
-        //     notifyToaster("Please agree to the privacy policy to continue!");
-        //     return;
-        // }
-
         const reqbody = {
             name : contactForm.first_name + " " + contactForm.last_name,
             number : contactForm.phone,
@@ -72,6 +67,7 @@ const Homepage = () => {
             const resp = await contact(reqbody);
             if(resp && resp.data && resp.data.success){
                 notifyToaster("Thank you. We’ll get back to you shortly.");
+                setContactForm({ first_name:"", last_name:"", phone:"", email:"", message: "" });
             }
             else{
                 notifyError();
@@ -264,14 +260,6 @@ const Homepage = () => {
                                 value={contactForm.message} onChange={(e) => setContactForm((prev) => ({...prev, message: e.target.value}))}
                             />
                         </div>
-
-                        {/* <div className='mt-6 mb-2 flex items-center'>
-                            <input type="checkbox" style={{ transform: 'scale(1.3)', marginTop:5, marginRight: 10 }}
-                                value={contactForm.checkbox} onChange={(e) => setContactForm((prev) => ({...prev, checkbox: e.target.checked}))}
-                            />
-                            <span className='text-[#667085]'>You agree to our friendly</span>
-                            <span className='ml-1 text-[#344054] underline'>privacy policy.</span>
-                        </div> */}
 
                         <button onClick={handleContact} className="p-2 w-full bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br font-semibold text-white text-[12px] md:text-[16px] rounded-md">Send message</button>
                     </div>

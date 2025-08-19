@@ -5,12 +5,15 @@ import { loginAccount } from '../../api/authentication'
 import { setToken } from '../../helper'
 import useUserHook from '../../context/UserContext'
 import { notifyToaster } from '../../components/notifyToaster'
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import IconButton from '@mui/material/IconButton';
 
 const Login = () => {
   const { setIsAuth } = useUserHook();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -71,14 +74,19 @@ const Login = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
-            <input
-              type="password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md outline-none"
-              placeholder="**********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className='w-full px-4 flex justify-between items-center border border-gray-300 rounded-md'>
+              <input
+                type={showPassword ? 'text': 'password'}
+                className="py-3 w-[90%] outline-none"
+                placeholder="•••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <IconButton onClick={() => setShowPassword(prev => !prev)}>
+                {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
+              </IconButton>
+            </div>
           </div>
 
           <div onClick={() => navigate("/forgot-password")} className="mt-[-10px] flex items-center justify-end text-sm text-[#FF5E5E] hover:underline cursor-pointer">

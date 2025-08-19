@@ -58,7 +58,7 @@ const VerifyScreen = () => {
           <button type="submit" disabled={loading} onClick={handleVerify}
             className="w-full py-3 md:mt-4 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:shadow-md text-white rounded-lg font-semibold"
           >
-            Verify OTP
+            {loading ? "..." : "Verify OTP"}
           </button>
         </div>
 

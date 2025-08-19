@@ -9,7 +9,7 @@ import { notifyError, notifyToaster } from "../../components/notifyToaster";
 
 
 const Cart = () => {
-  const { user } = useUserHook();
+  const { user, setCartCount } = useUserHook();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -19,15 +19,21 @@ const Cart = () => {
     try{
       const resp = await getCartbyId(user.userId);
       if(resp && resp.data && resp.data.success){
-        // console.log(resp.data.cart.items);
         setCartItems(resp.data.cart.items);
+        let count = 0
+        resp.data.cart.items.map((obj) => {
+          count = count + parseInt(obj.quantity);
+        })
+        setCartCount(count);
       }
       else{
         setCartItems([]);
+        setCartCount(0);
       }
     }
     catch(err){
       setCartItems([]);
+      setCartCount(0);
     }
   }
 
@@ -209,7 +215,7 @@ const Cart = () => {
       <div className="flex flex-col lg:flex-row items-start gap-12">
         <div className="w-full md:flex-1">
             {cartItems.map((item, index) => (
-              <ListItem item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} />
+              <ListItem item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
             ))}
         </div>
 
@@ -243,7 +249,7 @@ const Cart = () => {
 }
 
 
-const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCartItems, calculateCartAmount }) => {
+const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCartItems, calculateCartAmount, setCartCount }) => {
   const { user } = useUserHook();
   const debounceTimer = useRef(null);
 
@@ -274,6 +280,11 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
     const newObj = {...item, quantity: qty}
     newArr[index] = newObj;
     setCartItems(newArr);
+    let count = 0
+    newArr.map((obj) => {
+      count = count + parseInt(obj.quantity);
+    })
+    setCartCount(count);
     setBtnDisable(true);
 
     // Debounce the API call

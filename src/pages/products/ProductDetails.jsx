@@ -15,12 +15,14 @@ import Pagination from '@mui/material/Pagination';
 import { createOrder, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
 import ImgMag from './ImgMag';
+import Loading from '../../components/Loading';
 
 
 const ProductDetails = () => {
     const { id } = useParams();
-    const { user } = useUserHook();
+    const { user, cartCount, setCartCount } = useUserHook();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState("");
     const [selectedColor, setSelectedColor] = useState("");
     const [price, setPrice] = useState("");
@@ -56,6 +58,7 @@ const ProductDetails = () => {
     }
 
     const fetchProductDetails = async(productId) => {
+        setLoading(true);
         try{
             const response = await getProductDetails(productId);
             if(response && response.data && response.data.success){
@@ -82,6 +85,9 @@ const ProductDetails = () => {
                 fetchProductsByCategory(response.data.product.category_id);
             }
         } catch (err) {}
+        finally{
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -146,13 +152,16 @@ const ProductDetails = () => {
     }
 
     const verifyPayment = async(reqBody) => {
+        console.log("verifyPayment api cal")
         try{
           const resp = await paymentVerificationApi(reqBody);
           if(resp && resp.data){
-            // console.log(resp?.data);
+            console.log(resp?.data);
           }
         }
-        catch(err){}
+        catch(err){
+            console.log(err)
+        }
       }
 
     const buyProduct = async() => {
@@ -277,6 +286,7 @@ const ProductDetails = () => {
         try{
             const resp = await addToCart(reqBody);
             if(resp && resp.data){
+                setCartCount(cartCount + 1);
                 notifyToaster("Item added to cart.");
             }
             else{
@@ -289,7 +299,16 @@ const ProductDetails = () => {
     }
 
 
-    if(!productDetail) return null;
+    if(!productDetail || loading){
+        return(
+            <div className="w-full h-[90vh] flex justify-center items-center">
+                <div className="loader">
+                    <span className="loader-text">loading</span>
+                    <span className="load"></span>
+                </div>
+            </div>
+        )
+    }
 
 
     return (

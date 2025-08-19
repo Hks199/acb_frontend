@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router';
 import InfoComponent from './InfoComponent';
 import { signupAccount } from '../../api/authentication';
 import { notifyToaster } from '../../components/notifyToaster';
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import IconButton from '@mui/material/IconButton';
 
 const Signup = () => {
     const [form, setForm] = useState({ first_name: '', email: '', mobile_number: '', password: '', role: "Customer" });
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
 
@@ -82,15 +85,21 @@ const Signup = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="**********"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none"
-                            value={form.password}
-                            onChange={handleChange}
-                            required
-                        />
+
+                        <div className='w-full px-4 flex justify-between items-center border border-gray-300 rounded-md'>
+                            <input
+                                type={showPassword ? 'text': 'password'}
+                                className="py-3 w-[90%] outline-none"
+                                placeholder="•••••••••••••"
+                                name="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <IconButton onClick={() => setShowPassword(prev => !prev)}>
+                                {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
+                            </IconButton>
+                        </div>
                     </div>
 
                     <p className="mt-[-15px] ml-2 text-xs text-gray-500 mt-4 italic">Note: Our ecommerce service is currently available in <span className="font-semibold text-black">India only</span>.</p>

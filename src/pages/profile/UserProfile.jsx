@@ -8,7 +8,7 @@ import { notifyError, notifyToaster } from '../../components/notifyToaster';
 import Loading from '../../components/Loading';
 
 const UserProfile = () => {
-  const { user } = useUserHook();
+  const { user, setUser } = useUserHook();
   const [loading, setLoading] = useState(true);
   const [statesList, setStatesList] = useState(statesData);
   const [cityList, setCityList] = useState([]);
@@ -62,6 +62,7 @@ const UserProfile = () => {
       const response = await updateUser(user.userId, form);
       if(response && response.data){
         notifyToaster("Profile updated successfully.");
+        setUser({...user, ...form});
       }
       else{
         notifyError();
