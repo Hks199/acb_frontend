@@ -152,15 +152,15 @@ const ProductDetails = () => {
     }
 
     const verifyPayment = async(reqBody) => {
-        console.log("verifyPayment api cal")
+        // console.log("verifyPayment api cal")
         try{
           const resp = await paymentVerificationApi(reqBody);
           if(resp && resp.data){
-            console.log(resp?.data);
+            // console.log(resp?.data);
           }
         }
         catch(err){
-            console.log(err)
+            // console.log(err)
         }
       }
 
