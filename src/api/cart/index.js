@@ -9,6 +9,8 @@ export const updateCartItem = async (payload) => {
   }
 };
 
+
+
 export const addToCart = async (payload) => {
   try {
     const response = await axiosClient.post("cart/addToCart", payload);
