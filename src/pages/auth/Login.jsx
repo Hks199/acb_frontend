@@ -37,6 +37,9 @@ const Login = () => {
       }
     } catch (err) {
       notifyToaster(err?.response?.data?.message);
+      if(err?.response?.data?.error === "UnverifiedUser"){
+        navigate('/verify-otp', { state: {email, signup: true}});
+      }
     } finally {
       setLoading(false)
     }
