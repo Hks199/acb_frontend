@@ -117,6 +117,8 @@ const CustomerOrder = () => {
       try{
         const resp = await getUserOrderedProducts(reqBody);
         if(resp && resp.data && resp.data.success){
+          console.log("*******getOrderList*********")
+          console.log(resp.data.data)
           setPages((prev) => ({...prev, currentPage: resp.data.currentPage, totalPages: resp.data.totalPages }));
           setOrderList(resp.data.data);
         }
@@ -130,6 +132,8 @@ const CustomerOrder = () => {
       try{
         const resp = await cancelledOrders(reqBody);
         if(resp && resp.data && resp.data.success){
+          console.log("*******getCancelledOrderList*********")
+          console.log(resp.data.data)
           setCancelledList(resp.data.data);
           setPages((prev) => ({...prev, currentPage2: resp.data.currentPage, totalPages2: resp.data.totalPages }));
         }
@@ -143,6 +147,8 @@ const CustomerOrder = () => {
       try{
         const resp = await returnedOrders(reqBody);
         if(resp && resp.data && resp.data.success){
+          console.log("*******getReturnedOrderList*********")
+          console.log(resp.data.data)
           setReturnedList(resp.data.data);
           setPages((prev) => ({...prev, currentPage3: resp.data.currentPage, totalPages3: resp.data.totalPages }));
         }
@@ -151,16 +157,19 @@ const CustomerOrder = () => {
     }
 
   const handlePagination = (event, value) => {
+    window.scrollTo({ top: 0});
     setPages((prev) => ({...prev, currentPage: value}));
     getOrderList(value);
   }
 
   const handlePagination2 = (event, value) => {
+    window.scrollTo({ top: 0});
     setPages((prev) => ({...prev, currentPage2: value}));
     getCancelledOrderList(value);
   }
 
   const handlePagination3 = (event, value) => {
+    window.scrollTo({ top: 0});
     setPages((prev) => ({...prev, currentPage3: value}));
     getReturnedOrderList(value);
   }
@@ -253,7 +262,7 @@ const CustomerOrder = () => {
               <div className="flex flex-col md:flex-row justify-between md:justify-start px-6 py-4 bg-gray-100">
                 <div className='mb-3 md:mb-0 md:w-[20%]'>
                   <p className="text-sm text-gray-500">Order ID</p>
-                  <p className="font-medium">{order.order_id}</p>
+                  <p className="font-medium whitespace-nowrap">{order?.order_number}</p>
                 </div>
                 <div className='mb-3 md:mb-0 md:w-[20%]'>
                   <p className="text-sm text-gray-500">Date</p>
@@ -421,7 +430,7 @@ const OtherOrderList = ({order}) => {
           <div className="flex flex-col md:flex-rowjustify-between md:justify-start px-6 py-4 bg-gray-100">
             <div className='mb-3 md:mb-0 md:w-[20%]'>
               <p className="text-sm text-gray-500">Order ID</p>
-              <p className="font-medium">{order.orderId}</p>
+              <p className="font-medium whitespace-nowrap">{order?.order_number}</p>
             </div>
             <div className='mb-3 md:mb-0 md:w-[20%]'>
               <p className="text-sm text-gray-500">Date</p>

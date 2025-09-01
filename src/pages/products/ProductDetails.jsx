@@ -406,7 +406,7 @@ const ProductDetails = () => {
                 </div>
             </div>
 
-            <div className='px-4 md:px-20 my-8 vmd:my-15'>
+            <div className='px-4 md:px-20 my-8 md:my-15'>
                 <div className='flex'>
                     <div onClick={() => setShowDesc(true)} className={`py-2 mr-6 md:mr-10 mb-[-2px] text-[#717171] font-semibold ${showDesc && 'text-[#F75E69] border-b-2 border-[#F75E69]'} cursor-pointer`}>
                         Description
@@ -449,11 +449,11 @@ const ProductDetails = () => {
                     </div>
                 </div>
             ) : (
-                <div className='px-20 mt-[-30px]'>
+                <div className='px-4 md:px-20 mt-[-30px]'>
                     {ratings.ratingsArr.map((obj) => (
                         <div className='py-8 flex border-b border-[#F4F4F5]'>
-                            <IoPersonCircleSharp className='text-[70px]' />
-                            <div className='ml-10'>
+                            <IoPersonCircleSharp className='text-[50px] md:text-[70px]' />
+                            <div className='ml-5 md:ml-10 w-full'>
                                 <Rating name="read-only" value={obj.rating} readOnly />
                                 <div className='mt-1 mb-6'>{obj.review}</div>
                                 <div className='mb-1 font-semibold'>{obj.customerId.first_name}</div>

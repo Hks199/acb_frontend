@@ -249,7 +249,11 @@ const Homepage = () => {
                         <input
                             placeholder='+91 - xxxx xxx xxx'
                             className='p-2 mt-1.5 w-full bg-white border border-[#FF5E5E] rounded-md'
-                            value={contactForm.phone} onChange={(e) => setContactForm((prev) => ({...prev, phone: e.target.value}))}
+                            value={contactForm.phone} onChange={(e) => {
+                                if (/^\d{0,10}$/.test(e.target.value)){
+                                    setContactForm((prev) => ({...prev, phone: e.target.value}))
+                                }
+                            }}
                         />
                     </div>
 

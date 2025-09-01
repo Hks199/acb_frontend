@@ -18,6 +18,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    if(!email || !password){
+      notifyToaster("Please enter your email and password!");
+      return;
+    }
+
     setLoading(true);
     const reqBody = { email, password }
 

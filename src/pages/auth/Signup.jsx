@@ -15,10 +15,23 @@ const Signup = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target
-        setForm((prev) => ({ ...prev, [name]: value }))
+        if(name === "mobile_number"){
+            if (/^\d{0,10}$/.test(value)) {
+                setForm((prev) => ({ ...prev, [name]: value }))
+            }
+        }
+        else{
+            setForm((prev) => ({ ...prev, [name]: value }))
+        }
     }
 
     const handleSignup = async () => {
+        const { first_name, email, mobile_number, password } = form;
+        if(!first_name || !email || !mobile_number || !password){
+            notifyToaster("Please enter all the details!");
+            return;
+        }
+
         setLoading(true);
 
         try {

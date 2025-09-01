@@ -75,7 +75,15 @@ const UserProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }))
+    if(name === "mobile_number"){
+      if (/^\d{0,10}$/.test(value)) {
+        setForm((prev) => ({ ...prev, [name]: value }))
+      }
+    }
+    else{
+      setForm((prev) => ({ ...prev, [name]: value }))
+    }
+
     if(name === "state"){
       for(let i = 0; i < cityData.length; i++){
         if(cityData[i].state === value){
@@ -147,9 +155,9 @@ const UserProfile = () => {
           </select>
         </div>
 
-        {/* Landmark */}
+        {/* Full Address */}
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Landmark</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Full Address</label>
           <input
             name="landmark"
             value={form.landmark}

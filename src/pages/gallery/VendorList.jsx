@@ -31,6 +31,7 @@ const VendorList = () => {
     }, [])
 
     const handlePagination = (event, value) => {
+        window.scrollTo({ top: 0});
         setPages((prev) => ({...prev, currentPage: value}));
         fetchAllVendors(value);
     }

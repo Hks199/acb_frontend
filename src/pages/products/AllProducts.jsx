@@ -67,6 +67,7 @@ const AllProducts = () => {
     }
 
     const handlePagination = (event, value) => {
+        window.scrollTo({ top: 0});
         setPages((prev) => ({...prev, currentPage: value}));
         fetchProducts(value);
     }
