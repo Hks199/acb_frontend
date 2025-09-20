@@ -117,8 +117,8 @@ const CustomerOrder = () => {
       try{
         const resp = await getUserOrderedProducts(reqBody);
         if(resp && resp.data && resp.data.success){
-          console.log("*******getOrderList*********")
-          console.log(resp.data.data)
+          // console.log("*******getOrderList*********")
+          // console.log(resp.data.data)
           setPages((prev) => ({...prev, currentPage: resp.data.currentPage, totalPages: resp.data.totalPages }));
           setOrderList(resp.data.data);
         }
@@ -132,8 +132,8 @@ const CustomerOrder = () => {
       try{
         const resp = await cancelledOrders(reqBody);
         if(resp && resp.data && resp.data.success){
-          console.log("*******getCancelledOrderList*********")
-          console.log(resp.data.data)
+          // console.log("*******getCancelledOrderList*********")
+          // console.log(resp.data.data)
           setCancelledList(resp.data.data);
           setPages((prev) => ({...prev, currentPage2: resp.data.currentPage, totalPages2: resp.data.totalPages }));
         }
@@ -147,8 +147,8 @@ const CustomerOrder = () => {
       try{
         const resp = await returnedOrders(reqBody);
         if(resp && resp.data && resp.data.success){
-          console.log("*******getReturnedOrderList*********")
-          console.log(resp.data.data)
+          // console.log("*******getReturnedOrderList*********")
+          // console.log(resp.data.data)
           setReturnedList(resp.data.data);
           setPages((prev) => ({...prev, currentPage3: resp.data.currentPage, totalPages3: resp.data.totalPages }));
         }

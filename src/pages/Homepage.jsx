@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from "motion/react";
-import btnBgGradient from '../assets/landing/btn-bg-gradient.png';
-import leftGradient from '../assets/landing/left-gradient.png';
-import rightGradient from '../assets/landing/right-gradient.png';
+import { useState, useEffect } from 'react';
 import leftDots from '../assets/landing/left-dots.svg';
 import rightDots from '../assets/landing/right-dots.svg';
 import ArtGalleryImg from '../assets/landing/art-gallery.png';
-import logo from "../assets/logo.jpeg";
 import { useNavigate, Link, useLocation } from 'react-router';
 import Marquee from "react-fast-marquee";
 import { getAllCategories, getAllProducts } from '../api/products';
 import { contact } from '../api/contact';
 import { notifyError, notifyToaster } from '../components/notifyToaster';
+import HeroSection from './HeroSection';
 
 
 const bgColor = "F8FAFC";
@@ -23,6 +19,7 @@ const Homepage = () => {
     const location = useLocation();
     const [categoryList, setCategoryList] = useState([]);
     const [productList, setProductList] = useState([]);
+    const [productsCount, setProductsCount] = useState(50);
     const [categoryIdAndName, setCategoryIdAndName] = useState({});
     const [contactForm, setContactForm] = useState({ first_name:"", last_name:"", phone:"", email:"", message: "" })
 
@@ -51,6 +48,7 @@ const Homepage = () => {
             const resp = await getAllProducts(reqBody);
             if(resp && resp.data && resp.data.success){
                 setProductList(resp.data.products);
+                setProductsCount(resp?.data?.totalProducts);
             }
         } catch (err) {}
     }
@@ -104,47 +102,9 @@ const Homepage = () => {
 
     return (
         <div className={`w-full bg-[#${bgColor}] relative overflow-x-hidden ${textClr}`}>
-            <div className='h-[100vh] flex justify-center items-center z-10'>
-                <motion.div animate={{opacity: visible ? 1 : 0, y: visible ? 0 : -20}} className='z-20'>
-                    <div className='text-center text-[21px] md:text-[37px] font-bold'>
-                        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.6}} className='w-full flex md:hidden justify-center'>
-                            <img src={logo} className='mb-6 h-40' />
-                        </motion.div>
-                        <motion.div initial={{x:-100, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}>Unique. Timeless. <span className='text-[#7A38FF]'>Handmade</span>.</motion.div>
-                        <motion.div initial={{x: 200, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}><span className='text-[#FF5E5E]'>Art</span> that feels like home.</motion.div>
-                        <motion.div initial={{x:-100, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:0.3}}>Discover <span className='text-[#FFC336]'>beauty</span> in every piece.</motion.div>
-                    </div>
+            <HeroSection products={productList} totalProducts={productsCount} />
 
-                    <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.3}} className='mt-6 text-[#8F8F8F] text-center text-[12px] md:text-[17px]'>
-                        <div className='hidden md:inline-block w-[85%]'>Discover timeless, handcrafted art and craft pieces that add soul, warmth, and</div>
-                        <div className='hidden md:inline-block w-[85%]'>story to your everyday spaces. From skilled hands to your home.</div>
-
-                        <div className='px-10 inline-block md:hidden'>Discover timeless, handcrafted art and craft pieces that add soul, warmth, and story to your everyday spaces. From skilled hands to your home.</div>
-                    </motion.div>
-
-
-                    <motion.div
-                        initial={{y:30, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.3, type:"spring", stiffness:250}}
-                        className='mt-10 flex justify-center items-center relative'
-                    >
-                        <img src={btnBgGradient} className='h-[65px] md:h-[80px] object-contain absolute bottom-[-12px] md:bottom-[-18px]' />
-                        <motion.button
-                            onClick={() => navigate("/products")}
-                            className="px-8 py-3 z-10 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br font-semibold text-white text-[12px] md:text-[16px] rounded-full"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{type:"spring", stiffness:300}}
-                        >
-                            Shop Now & Own the Handmade
-                        </motion.button>
-                    </motion.div>
-                </motion.div>
-
-                <img src={leftGradient} className='absolute left-[-5%] top-[-5%] scale-[130%]' />
-                <img src={rightGradient} className='absolute right-[-8%] top-[-20%] scale-[130%]' />
-            </div>
-
-            <div className='w-full text-center relative'>
+            <div className='pt-8 w-full text-center relative'>
                 <div className='mb-3 text-2xl font-semibold'>Explore Our Categories</div>
                 <div className='px-2'>Discover a world of handcrafted beauty—explore curated categories filled with unique art,</div>
                 <div className='px-2'>décor, and meaningful creations.</div>
