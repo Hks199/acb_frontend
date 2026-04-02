@@ -32,7 +32,7 @@ const UserProfile = () => {
       try {
         const response = await getUserByAuthToken();
         if(response && response.data && response.data.status === "success"){
-          const { email, firstName, landmark, mobile_number, role, state, city, pin_code } = response.data.userData;
+          const { email, firstName, landmark, mobile_number, role, state, city, pin_code, order_flag } = response.data.userData;
           setForm((prev) => ({...prev, full_name: firstName, email, landmark, mobile_number, role, state, city, pin_code}));
           for(let i = 0; i < cityData.length; i++){
             if(cityData[i].state === state){

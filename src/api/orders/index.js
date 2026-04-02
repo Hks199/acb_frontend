@@ -75,7 +75,6 @@ export const paymentVerificationApi = async (payload) => {
     const response = await axiosClient.post("order/verify", payload);
     return response;
   } catch (error) {
-    // console.error('Failed to create order:', error);
     throw error;
   }
 };

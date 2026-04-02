@@ -12,13 +12,15 @@ const Cart = () => {
   const { user, setCartCount } = useUserHook();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
+  const [originalPrice, setOriginalPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [totalDiscountedPrice, setTotalDiscountedPrice] = useState(0);
   const [btnDisable, setBtnDisable] = useState(false);
 
-  const getCartItems = async() => {
-    try{
+  const getCartItems = async () => {
+    try {
       const resp = await getCartbyId(user.userId);
-      if(resp && resp.data && resp.data.success){
+      if (resp && resp.data && resp.data.success) {
         setCartItems(resp.data.cart.items);
         let count = 0
         resp.data.cart.items.map((obj) => {
@@ -26,25 +28,28 @@ const Cart = () => {
         })
         setCartCount(count);
       }
-      else{
+      else {
         setCartItems([]);
         setCartCount(0);
       }
     }
-    catch(err){
+    catch (err) {
       setCartItems([]);
       setCartCount(0);
     }
   }
 
-  const calculateCartAmount = async() => {
-    try{
+  const calculateCartAmount = async () => {
+    try {
       const resp = await calculateCartTotalAmount(user.userId);
-      if(resp && resp.data && resp.data.success){
-        setTotalPrice(resp.data.totalAmount);
+      if (resp && resp.data && resp.data.success) {
+        const totalAmt = (resp.data.totalAmountAfterDiscount !== 0 && resp.data.totalAmountAfterDiscount < resp.data.totalAmount) ? resp.data.totalAmountAfterDiscount : resp.data.totalAmount
+        setOriginalPrice(resp.data.totalAmount);
+        setTotalPrice(totalAmt);
+        setTotalDiscountedPrice(resp.data.addition_discount);
       }
     }
-    catch(err){}
+    catch (err) { }
   }
 
   useEffect(() => {
@@ -53,29 +58,29 @@ const Cart = () => {
     calculateCartAmount();
   }, [])
 
-  const clearCart = async() => {
-    try{
+  const clearCart = async () => {
+    try {
       const resp = await clearCartApi(user.userId);
-      if(resp && resp.data){
+      if (resp && resp.data) {
         setCartItems([]);
         setTotalPrice(0);
       }
     }
-    catch(err){}
+    catch (err) { }
   }
 
-  const verifyPayment = async(reqBody) => {
-    try{
+  const verifyPayment = async (reqBody) => {
+    try {
       const resp = await paymentVerificationApi(reqBody);
-      if(resp && resp.data){
+      if (resp && resp.data) {
         // console.log(resp?.data);
       }
     }
-    catch(err){}
+    catch (err) { }
   }
 
-  const confirmOrder = async() => {
-    if(!user){
+  const confirmOrder = async () => {
+    if (!user) {
       navigate("/login");
       return;
     }
@@ -97,8 +102,8 @@ const Cart = () => {
     }
 
     const itemsArr = [];
-    for(let i = 0; i < cartItems.length; i++){
-      const {product, quantity, variant, fallback_price} = cartItems[i];
+    for (let i = 0; i < cartItems.length; i++) {
+      const { product, quantity, variant, fallback_price } = cartItems[i];
       const itemObj = {
         product_id: product._id,
         quantity: quantity,
@@ -106,13 +111,14 @@ const Cart = () => {
         total_price: (variant ? variant.price : fallback_price) * quantity
       }
 
-      if(variant && variant._id){
+      if (variant && variant._id) {
         itemObj["variant_combination_id"] = variant?._id
       }
 
       itemsArr.push(itemObj);
 
     }
+
 
     const reqBody = {
       user_id: user.userId,
@@ -132,9 +138,9 @@ const Cart = () => {
       deliveryCharge: 0
     }
     // console.log("reqBody", reqBody);
-    try{
+    try {
       const resp = await createOrder(reqBody);
-      if(resp && resp.data){
+      if (resp && resp.data) {
         // console.log("resp.data -> ", resp.data);
 
         const options = {
@@ -177,32 +183,32 @@ const Cart = () => {
         })
       }
     }
-    catch(err){
-      if(err?.response?.data?.message  === "400"){
+    catch (err) {
+      if (err?.response?.data?.message === "400") {
         const str = err?.response?.data?.errorType;
         const matches = str.match(/[a-zA-Z0-9]+/g);
         const lastSequence = matches ? matches[matches.length - 1] : null;
         const prdName = cartItems.find((obj) => obj?.product?._id === lastSequence)?.product.name;
-        if(prdName){
+        if (prdName) {
           notifyToaster(prdName + " is out of stock");
         }
-        else{
+        else {
           notifyError();
         }
       }
-      else if(err?.response?.data?.errorType === "OutOfStock"){
+      else if (err?.response?.data?.errorType === "OutOfStock") {
         const str = err?.response?.data?.message;
         const matches = str.match(/[a-zA-Z0-9]+/g);
         const lastSequence = matches ? matches[matches.length - 1] : null;
         const prdName = cartItems.find((obj) => obj?.variant?._id === lastSequence ? obj : null);
-        if(prdName?.product?.name){
+        if (prdName?.product?.name) {
           notifyToaster(`We’re sorry — the selected variant of ${prdName?.product?.name} is unavailable!`);
         }
-        else{
+        else {
           notifyError();
         }
       }
-      else{
+      else {
         notifyError();
       }
     }
@@ -211,37 +217,40 @@ const Cart = () => {
 
   return (
     <div className="px-4 py-6 md:p-10 md:px-20 min-h-[85vh]">
-        <h2 className="text-2xl font-semibold mb-6">Your Cart</h2>
+      <h2 className="text-2xl font-semibold mb-6">Your Cart</h2>
       <div className="flex flex-col lg:flex-row items-start gap-12">
         <div className="w-full md:flex-1">
-            {cartItems.map((item, index) => (
-              <ListItem item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
-            ))}
+          {cartItems.map((item, index) => (
+            <ListItem item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
+          ))}
         </div>
 
         <div className="w-full max-w-sm bg-[#FAFAFA] p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Summary</h3>
-            <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-                <span>Subtotal</span>
-                <span>{btnDisable ? "..." : "₹" + totalPrice}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-                <span>Tax</span>
-                <span>{btnDisable ? "..." : "₹0"}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-                <span>Shipping</span>
-                <span>{btnDisable ? "..." : "₹0"}</span>
-            </div>
-            <div className="flex justify-between py-4 font-semibold text-lg">
-                <span>Total</span>
-                <span className="text-[#69D3A8]">{btnDisable ? "..." : "₹" + totalPrice}</span>
-            </div>
-            {cartItems.length > 0 && (
-              <button disabled={btnDisable} onClick={confirmOrder} className={`w-full ${btnDisable ? "bg-[#cccccc]" : "bg-[#F75E69]"} bg-[#F75E69] text-white py-2 rounded-md mb-3`}>
-                {btnDisable ? "..." : "Confirm Order"}
-              </button>
-            )}
+          <h3 className="text-lg font-semibold mb-4">Summary</h3>
+          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
+            <span>Subtotal</span>
+            <span>{btnDisable ? "..." : "₹" + originalPrice}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
+            <span>Tax</span>
+            <span>{btnDisable ? "..." : "₹0"}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
+            <span>Shipping</span>
+            <span>{btnDisable ? "..." : "₹0"}</span>
+          </div>
+          <div className="flex justify-between pt-4 font-semibold text-lg">
+            <span>Total</span>
+            <span className="text-[#69D3A8]">{btnDisable ? "..." : "₹" + totalPrice}</span>
+          </div>
+          {totalDiscountedPrice !== 0 && (
+            <div className="py-1.5 px-4 mt-3 mb-4 w-full bg-green-100 text-center text-[#69D3A8] text- rounded">₹{totalDiscountedPrice} will be discounted.</div>
+          )}
+          {cartItems.length > 0 && (
+            <button disabled={btnDisable} onClick={confirmOrder} className={`w-full ${btnDisable ? "bg-[#cccccc]" : "bg-[#F75E69]"} bg-[#F75E69] text-white py-2 rounded-md mb-3`}>
+              {btnDisable ? "..." : "Confirm Order"}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -253,23 +262,23 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
   const { user } = useUserHook();
   const debounceTimer = useRef(null);
 
-  const updateCartQuantity = async(qty) => {
+  const updateCartQuantity = async (qty) => {
     const reqBody = {
       user_id: user.userId,
       product_id: item.product._id,
       quantity: qty
     }
 
-    if(item.variant) reqBody["variant_id"] = item.variant._id;
+    if (item.variant) reqBody["variant_id"] = item.variant._id;
 
-    try{
+    try {
       const resp = await updateCartItem(reqBody);
-      if(resp && resp.data && resp.data.success){
+      if (resp && resp.data && resp.data.success) {
         calculateCartAmount();
       }
     }
-    catch(err){}
-    finally{
+    catch (err) { }
+    finally {
       setBtnDisable(false);
     }
   }
@@ -277,7 +286,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
   const handleQuantity = (flag) => {
     const qty = flag ? item.quantity + 1 : (item.quantity > 1 ? item.quantity - 1 : 1);
     const newArr = [...cartItems];
-    const newObj = {...item, quantity: qty}
+    const newObj = { ...item, quantity: qty }
     newArr[index] = newObj;
     setCartItems(newArr);
     let count = 0
@@ -294,44 +303,44 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
     }, 1500); // adjust delay as needed
   }
 
-  const deleteCartItems = async() => {
+  const deleteCartItems = async () => {
     // console.log(user, user.userId)
     const reqBody = {
       user_id: user.userId,
       product_id: item.product._id,
     }
 
-    if(item.variant) reqBody["variant_id"] = item.variant._id;
+    if (item.variant) reqBody["variant_id"] = item.variant._id;
 
-    try{
+    try {
       const resp = await removeCartItem(reqBody);
-      if(resp && resp.data && resp.data.success){
+      if (resp && resp.data && resp.data.success) {
         getCartItems();
         calculateCartAmount();
       }
     }
-    catch(err){}
+    catch (err) { }
   }
 
 
-  return(
+  return (
     <div key={index} className="py-4 flex flex-col md:flex-row md:items-center justify-between border-b border-[#E4E4E7]">
       <div className="flex items-center gap-4">
-          <img src={item.product.image} className="w-16 h-16 object-cover rounded-lg"/>
-          <div>
-              <h4 className="font-semibold text-sm">{item.product.name}</h4>
-              <p className="text-[#F75E69]">₹{item.variant ? item.variant.price : item.fallback_price}</p>
-          </div>
+        <img src={item.product.image} className="w-16 h-16 object-cover rounded-lg" />
+        <div>
+          <h4 className="font-semibold text-sm">{item.product.name}</h4>
+          <p className="text-[#F75E69]">₹{item.variant ? item.variant.price : item.fallback_price}</p>
+        </div>
       </div>
 
       <div className="mt-4 md:mt-0 flex self-end items-center gap-4">
-          <div className="flex border rounded-md">
-              <button onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
-              <div className="px-4 font-semibold text-lg">{item.quantity}</div>
-              <button onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
-          </div>
+        <div className="flex border rounded-md">
+          <button onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
+          <div className="px-4 font-semibold text-lg">{item.quantity}</div>
+          <button onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
+        </div>
 
-          <button onClick={deleteCartItems} className="text-2xl hover:text-[#F75E69]"><MdDelete /></button>
+        <button onClick={deleteCartItems} className="text-2xl hover:text-[#F75E69]"><MdDelete /></button>
       </div>
     </div>
   )

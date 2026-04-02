@@ -78,7 +78,10 @@ function App() {
       <Navbar user={user} isAuth={isAuth} />
       <Routes>
         <Route path="/" element={<Homepage />} />
+
         <Route path="/products" element={<AllProducts />} />
+        <Route path="/products/:id" element={<AllProducts />} />
+
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/return-and-refund" element={<ReturnRefund />} />
         <Route path="/art-gallery" element={<VendorList />} />

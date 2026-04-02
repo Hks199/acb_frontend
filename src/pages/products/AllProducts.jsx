@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { FaAngleRight } from "react-icons/fa6";
-import { Link, useLocation } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { getAllCategories, getAllProducts, getProductsByCategory } from "../../api/products";
 import Pagination from '@mui/material/Pagination';
 
 
 const AllProducts = () => {
-    const { state } = useLocation();
-    const [selectedCategory, setSelectedCategory] = useState(state ? state.categoryId : "");
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [categoryName, setCategoryName] = useState("All");
     const [categoryList, setCategoryList] = useState([]);
     const [productList, setProductList] = useState([]);
     const [categoryIdAndName, setCategoryIdAndName] = useState({});
@@ -18,8 +19,19 @@ const AllProducts = () => {
     useEffect(() => {
         window.scrollTo({ top: 0});
         fetchCategories();
-        selectCategory(state ? state.categoryId : "");
+        selectCategory(id ? id : "");
     }, [])
+
+    useEffect(() => {
+        console.log("useEffect called 2222", id)
+        if(id){
+            fetchProductsByCategory(id);
+        }
+        else{
+            fetchProducts(1);
+        }
+    }, [id])
+
 
     const fetchCategories = async() => {
         try{
@@ -51,9 +63,10 @@ const AllProducts = () => {
     }
 
     const fetchProductsByCategory = async(categoryId) => {
+        // navigate(`/products/${categoryId}`);
         setLoading(true);
         const reqBody = { category_id: categoryId, page: 1, limit: 16 };
-
+        
         try{
             const resp = await getProductsByCategory(reqBody);
             if(resp && resp.data && resp.data.success){
@@ -73,11 +86,19 @@ const AllProducts = () => {
     }
 
     const selectCategory = (categoryId) => {
-        setSelectedCategory(categoryId);
+        const data = categoryList.filter((obj) => obj._id === categoryId);
+        if(data.length > 0 && data[0].category){
+            setCategoryName(data[0]?.category)
+        }
+        else{
+            setCategoryName("All");
+        }
         if(categoryId){
+            navigate(`/products/${categoryId}`)
             fetchProductsByCategory(categoryId);
         }
         else{
+            navigate(`/products`)
             fetchProducts(1);
         }
     }
@@ -87,13 +108,13 @@ const AllProducts = () => {
         <div className="px-4 md:px-14 lg:px-20 py-15 bg-white overflow-x-hidden">
             {/* Breadcrumb */}
             <div className="mb-6 flex items-center text-xl font-bold">
-                <span className="mb-1 mr-1.5">Home</span> <FaAngleRight /> <span className="mb-1 mx-1.5">Category</span> <FaAngleRight /> <span className="mb-1 mx-1.5">{state && state.categoryName ? state.categoryName : "All"}</span>
+                <span className="mb-1 mr-1.5">Home</span> <FaAngleRight /> <span className="mb-1 mx-1.5">Category</span> <FaAngleRight /> <span className="mb-1 mx-1.5">{categoryName}</span>
             </div>
 
             <div className="flex flex-wrap text-sm md:text-base">
-                <div onClick={() => selectCategory("")} className={`px-4 py-1.5 mr-2 md:mr-4 mb-3 text-center min-w-16 ${!selectedCategory ? "text-white bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A]" : "text-[#F75E69] border-2 border-[#F75E69]"} rounded-full cursor-pointer`}>All</div>
+                <div onClick={() => selectCategory("")} className={`px-4 py-1.5 mr-2 md:mr-4 mb-3 text-center min-w-16 ${!id ? "text-white bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A]" : "text-[#F75E69] border-2 border-[#F75E69]"} rounded-full cursor-pointer`}>All</div>
                 {categoryList.map((obj) => (
-                    <div onClick={() => selectCategory(obj._id)} className={`px-4 py-1.5 mr-2 md:mr-4 mb-3 text-center min-w-16 ${selectedCategory === obj._id ? "text-white bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A]" : "text-[#F75E69] border-2 border-[#F75E69]"} rounded-full cursor-pointer`}>{obj.category}</div>
+                    <div onClick={() => selectCategory(obj._id)} className={`px-4 py-1.5 mr-2 md:mr-4 mb-3 text-center min-w-16 ${id === obj._id ? "text-white bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A]" : "text-[#F75E69] border-2 border-[#F75E69]"} rounded-full cursor-pointer`}>{obj.category}</div>
                 ))}
             </div>
 
@@ -108,7 +129,7 @@ const AllProducts = () => {
                 <div className="mt-6">
                     <div className="grid gap-6 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-between">
                         {productList.map((product) => (
-                            <div className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
+                            <Link to={`/product/${product._id}`} className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
                                 {product.imageUrls.length > 0 && product.imageUrls[0] ? (
                                         <img src={product.imageUrls[0]} className='h-[220px] w-full bg-[#D9D9D9] object-cover rounded'/>
                                     ) : (
@@ -119,10 +140,10 @@ const AllProducts = () => {
                                     <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[product.category_id]}</div>
                                     <div className='mt-4 flex justify-between items-center'>
                                         <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {product.price}</div>
-                                        <Link to={`/product/${product._id}`} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</Link>
+                                        <div className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                     <div className='mt-10 w-full flex justify-center'>
