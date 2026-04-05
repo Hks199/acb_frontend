@@ -174,7 +174,7 @@ const ProductDetails = () => {
         const amount = currentVarientId ? price : productDetail.price;
 
         // Apply 10% discount if orderData is 1
-        if (user.order_flag === 1) {
+        if (user && user?.order_flag === 1) {
             discount += 10;
         }
 
@@ -396,8 +396,8 @@ const ProductDetails = () => {
                     </div>
 
                     {/* Discounts */}
-                    {(user.order_flag === 1 || price > 3999) && (
-                        <div className='text-green-500'>{(user.order_flag === 1 && price > 3999) ? "Extra 15% off on Buy Now" : (user.order_flag === 1 ? "Extra 10% off on Buy Now" : "Extra 5% off on Buy Now")}</div>
+                    {((user && user?.order_flag === 1) || price > 3999) && (
+                        <div className='text-green-500'>{((user && user?.order_flag === 1) && price > 3999) ? "Extra 15% off on Buy Now" : ((user && user?.order_flag === 1) ? "Extra 10% off on Buy Now" : "Extra 5% off on Buy Now")}</div>
                     )}
 
                     {/* Features */}

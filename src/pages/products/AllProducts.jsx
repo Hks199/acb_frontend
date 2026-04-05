@@ -23,7 +23,6 @@ const AllProducts = () => {
     }, [])
 
     useEffect(() => {
-        console.log("useEffect called 2222", id)
         if(id){
             fetchProductsByCategory(id);
         }
