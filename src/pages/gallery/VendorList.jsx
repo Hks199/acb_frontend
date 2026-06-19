@@ -68,7 +68,7 @@ const VendorList = () => {
                                 {obj?.products[0]?.product_name && obj?.products?.map((prdDetail) => (
                                     <Link to={`/product/${prdDetail?._id}`}>
                                         <img src={prdDetail?.imageUrls[0]} className='mr-4 w-[200px] h-[180px] bg-gray-100 border border-gray-200 rounded-lg object-cover' />
-                                        <div className='mt-1 px-1 w-[200px] font-semibol text-gray-600'>{prdDetail?.product_name?.length > 20 ? `${prdDetail?.product_name?.slice(0, 20)}...` : prdDetail?.product_name}</div>
+                                        <div className='mt-1 px-1 w-[200px] font-semibol text-gray-600 break-words'>{prdDetail?.product_name?.length > 20 ? `${prdDetail?.product_name?.slice(0, 20)}...` : prdDetail?.product_name}</div>
                                         <div className='px-1 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "}{prdDetail?.category?.length > 15 ? `${prdDetail?.category.slice(0, 20)}...` : prdDetail?.category}</div>
                                         <div className='mt-2 flex items-center justify-between'>
                                         <div className='px-1 text-sm'>₹{prdDetail?.price}</div>

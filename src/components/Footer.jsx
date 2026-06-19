@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
+import { FaFacebookF, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import logo from "../assets/logo.jpeg";
 import { useNavigate } from "react-router";
@@ -21,6 +21,11 @@ const Footer = () => {
     const handleInsta = () => {
         const instaLink = 'https://www.instagram.com/acb_artandcraftfrombharat?igsh=djlicHJhZDF2eXcy';
         window.open(instaLink, '_blank'); // Opens in new tab
+    };
+
+    const handleYoutube = () => {
+        const ytLink = 'https://youtube.com/@acbartandcraftfrombharat?si=WTRUN0roN7WA8A_g';
+        window.open(ytLink, '_blank'); // Opens in new tab
     };
 
     const handleWhatsapp = () => {
@@ -85,6 +90,9 @@ const Footer = () => {
                                 </div>
                                 <div onClick={handleWhatsapp} className='w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
                                     <FaWhatsapp style={{color:"#FC3778"}}/>
+                                </div>
+                                <div onClick={handleYoutube} className='ml-2 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer'>
+                                    <FaYoutube style={{color:"#FC3778"}}/>
                                 </div>
                             </div>
                         </div>

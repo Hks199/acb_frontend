@@ -126,7 +126,7 @@ const Homepage = () => {
                                     </div>
                                     <div className='absolute top-24 md:top-35 z-10'>
                                         <div className='px-2 text-sm md:text-base max-w-[140px] text-center break-words block md:hidden'>{obj.category.length > 30 ? `${obj.category.slice(0, 30)}...` : obj.category}</div>
-                                        <div className='px-2 text-sm md:text-base max-w-[140px] text-center break-words hidden md:inline-block'>{ obj.category}</div>
+                                        <div className='px-2 text-sm md:text-base max-w-[140px] text-center break-words hidden md:inline-block'>{obj.category}</div>
                                     </div>
                                 </div>
                             ))}
@@ -148,7 +148,7 @@ const Homepage = () => {
                                 <div className='p-10 h-[180px] bg-[#D9D9D9] rounded'></div>
                             )}
                             <div className='pt-3 text-left'>
-                                <div className='text-[#3B3B3B] text-[15px] leading-none'>{obj.product_name}</div>
+                                <div className='text-[#3B3B3B] text-[15px] leading-none break-words'>{obj.product_name}</div>
                                 <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[obj.category_id]}</div>
                                 <div className='mt-4 flex justify-between items-center'>
                                     <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {obj.price}</div>

@@ -472,7 +472,7 @@ const ProductDetails = () => {
                                     <div className='p-10 h-[180px] bg-[#D9D9D9] rounded'></div>
                                 )}
                                 <div className='pt-3 text-left'>
-                                    <div className='text-[#3B3B3B] text-[15px] leading-none'>{obj.product_name}</div>
+                                    <div className='text-[#3B3B3B] text-[15px] leading-none break-words'>{obj.product_name}</div>
                                     <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {category}</div>
                                     <div className='mt-4 flex justify-between items-center'>
                                         <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {obj.price}</div>
