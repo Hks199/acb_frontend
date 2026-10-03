@@ -12,6 +12,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { createReview } from '../../api/ratings';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
 
+const emptyReview = { rating: 0, review: "", productId: "", productName: "" };
 
 const CustomerOrder = () => {
   const { user } = useUserHook();
@@ -27,20 +28,35 @@ const CustomerOrder = () => {
   const [selectedTab, setSelectedTab] = useState(1);
   const [pages, setPages] = useState({ totalPages: 1, currentPage: 1, totalPages2: 1, currentPage2: 1, totalPages3: 1, currentPage3: 1 });
   const [openDialog, setOpenDialog] = useState(false);
-  const [ratings, setRatings] = useState({ rating: 0, review: "", ratingsArr: [], productId: "" });
+  const [ratings, setRatings] = useState(emptyReview);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const reviewSubmission = useRef(false);
 
 
-  const handleDialogOpen = (prodId) => {
-    setRatings((prev) => ({...prev, productId: prodId}));
+  const handleDialogOpen = (order) => {
+    if (reviewSubmission.current) return;
+    setRatings({ ...emptyReview, productId: order.product_id, productName: order.product_name });
     setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
-    setRatings((prev) => ({...prev, productId: ""}));
+    if (reviewSubmission.current) return;
+    setRatings(emptyReview);
     setOpenDialog(false);
   };
 
   const addReview = async() => {
+    if (reviewSubmission.current) return;
+    if (!user?.userId || !ratings.productId || !orderList.some(
+      (order) => order.product_id === ratings.productId && order.orderStatus === "Delivered"
+    )) {
+      notifyToaster("Please select a delivered product to review.");
+      return;
+    }
+    if (!Number.isFinite(ratings.rating) || ratings.rating < 1 || ratings.rating > 5) {
+      notifyToaster("Please select a rating from 1 to 5 stars.");
+      return;
+    }
     const reqBody = {
         productId : ratings.productId,
         customerId : user.userId,
@@ -48,21 +64,27 @@ const CustomerOrder = () => {
         review : ratings.review
     }
   
+    reviewSubmission.current = true;
+    setSubmittingReview(true);
     try{
         const resp = await createReview(reqBody);
         if(resp && resp.data && resp.data.success){
-          setRatings((prev) => ({...prev, rating: 4, review: "", productId: ""}));
-          handleDialogClose();
+          setRatings(emptyReview);
+          setOpenDialog(false);
           notifyToaster("Thank you! Your review has been submitted.");
         }
     }
     catch(err){
-      if(err.response.data.errorType === "DuplicateReview"){
-        notifyToaster("You’ve already submitted a review for this order.");
+      if(err?.response?.data?.errorType === "DuplicateReview"){
+        notifyToaster("You've already submitted a review for this product.");
       }
       else{
         notifyError();
       }
+    }
+    finally {
+      reviewSubmission.current = false;
+      setSubmittingReview(false);
     }
   }
 
@@ -298,7 +320,7 @@ const CustomerOrder = () => {
 
                     <div className='flex'>
                       {(order.orderStatus === "Delivered") && (
-                        <button onClick={() => handleDialogOpen(order.product_id)} className="mr-3 flex items-center border border-[#F75E69] text-sm text-[#F75E69] font-medium rounded-md px-4 py-2">
+                        <button onClick={() => handleDialogOpen(order)} className="mr-3 flex items-center border border-[#F75E69] text-sm text-[#F75E69] font-medium rounded-md px-4 py-2">
                             Add a Review
                           </button>
                       )}
@@ -390,21 +412,22 @@ const CustomerOrder = () => {
 
 
       <Dialog open={openDialog} onClose={handleDialogClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{"Product Review"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Product Review: {ratings.productName}</DialogTitle>
           <DialogContent>
             <div className='w-[450px]'>
               <div className='mb-1 text-[#FF5E5E]'>Rate this product</div>
               <Rating
                 name="simple-controlled"
                 value={ratings.rating}
+                disabled={submittingReview}
                 onChange={(event, newValue) => setRatings((prev) => ({...prev, rating: newValue}))}
               />
 
               <div className='mt-3 mb-1 text-[#FF5E5E]'>Add a review</div>
               <textarea className='p-3 mb-2 w-full h-[150px] border-2 border-[#e3e3e3] rounded-lg outline-none'
-                value={ratings.review} onChange={(e) => setRatings((prev) => ({...prev, review: e.target.value}))}
+                value={ratings.review} disabled={submittingReview} onChange={(e) => setRatings((prev) => ({...prev, review: e.target.value}))}
               />
-              <button onClick={addReview} className="py-3 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br font-semibold text-white text-[12px] md:text-[16px] w-full rounded-lg">Submit Review</button>
+              <button onClick={addReview} disabled={submittingReview} className="py-3 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br font-semibold text-white text-[12px] md:text-[16px] w-full rounded-lg">{submittingReview ? "Submitting..." : "Submit Review"}</button>
             </div>
         </DialogContent>
       </Dialog>

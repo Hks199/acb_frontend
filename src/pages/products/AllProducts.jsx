@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaAngleRight } from "react-icons/fa6";
+import { IoIosStar } from "react-icons/io";
 import { Link, useNavigate, useParams } from "react-router";
 import { getAllCategories, getAllProducts, getProductsByCategory } from "../../api/products";
 import Pagination from '@mui/material/Pagination';
@@ -128,7 +129,7 @@ const AllProducts = () => {
                 <div className="mt-6">
                     <div className="grid gap-6 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-between">
                         {productList.map((product) => (
-                            <Link to={`/product/${product._id}`} className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
+                            <Link key={product._id} to={`/product/${product._id}`} className='p-3 w-full min-w-[220px] bg-white rounded-xl shadow-[0px_15px_100px_0px_#9D9D9D40]'>
                                 {product.imageUrls.length > 0 && product.imageUrls[0] ? (
                                         <img src={product.imageUrls[0]} className='h-[220px] w-full bg-[#D9D9D9] object-cover rounded'/>
                                     ) : (
@@ -137,6 +138,12 @@ const AllProducts = () => {
                                 <div className='pt-3 text-left'>
                                     <div className='text-[#3B3B3B] text-[15px] leading-none break-words'>{product.product_name}</div>
                                     <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[product.category_id]}</div>
+                                    {Number(product.review_count) > 0 && Number(product.avg_rating) > 0 && (
+                                        <div className="mt-3 flex justify-end items-center gap-1 text-sm font-semibold text-[#3B3B3B]" aria-label={`Average rating: ${Number(product.avg_rating).toFixed(1)} out of 5`}>
+                                            <IoIosStar className="text-[#FFD119]" size={18} aria-hidden="true" />
+                                            <span>{Number(product.avg_rating).toFixed(1)} / 5</span>
+                                        </div>
+                                    )}
                                     <div className='mt-4 flex justify-between items-center'>
                                         <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {product.price}</div>
                                         <div className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>

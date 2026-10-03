@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FaAngleRight } from "react-icons/fa6";
 import { IoIosStar } from "react-icons/io";
 import { IoEarthOutline, IoPersonOutline, IoPersonCircleSharp } from "react-icons/io5";
@@ -20,7 +20,8 @@ import Loading from '../../components/Loading';
 
 const ProductDetails = () => {
     const { id } = useParams();
-    const { user, cartCount, setCartCount } = useUserHook();
+    const { user, setCartCount } = useUserHook();
+    const addingToCart = useRef(false);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState("");
@@ -39,15 +40,18 @@ const ProductDetails = () => {
     const [colors, setColors] = useState([]);
     const [combinations, setCombinations] = useState([]);
     const [ratings, setRatings] = useState({ rating: 0, review: 0, ratingsArr: [] });
+    const ratingsRequest = useRef(0);
     const [productImgs, setProductImgs] = useState([]);
     const [productImgObj, setProductImgObj] = useState(null);
     const [pages, setPages] = useState({ totalPages: 1, currentPage: 1 });
 
 
     const fetchRatings = async (id, pageNum) => {
+        const requestId = ++ratingsRequest.current;
         const reqBody = { page: pageNum, limit: 10 }
         try {
             const resp = await getReviewsByProductId(id, reqBody);
+            if (requestId !== ratingsRequest.current) return;
             if (resp && resp.data && resp.data.success) {
                 setRatings((prev) => ({ ...prev, ratingsArr: resp.data.reviews, review: resp.data.totalReviews }))
                 setPages({ totalPages: resp.data.totalPages, currentPage: resp.data.currentPage });
@@ -56,6 +60,7 @@ const ProductDetails = () => {
                 setRatings({ rating: 0, review: 0, ratingsArr: [] });
             }
         } catch (err) {
+            if (requestId !== ratingsRequest.current) return;
             setRatings({ rating: 0, review: 0, ratingsArr: [] });
         }
     }
@@ -96,6 +101,7 @@ const ProductDetails = () => {
     }
 
     useEffect(() => {
+        setRatings({ rating: 0, review: 0, ratingsArr: [] });
         fetchProductDetails(id);
         fetchRatings(id, 1);
         window.scrollTo(0, 0);
@@ -295,6 +301,7 @@ const ProductDetails = () => {
     }
 
     const handleCart = async () => {
+        if (addingToCart.current) return;
         if (!user) {
             notifyToaster("Please login to continue!");
             return;
@@ -308,10 +315,11 @@ const ProductDetails = () => {
 
         if (currentVarientId) reqBody["variant_id"] = currentVarientId;
 
+        addingToCart.current = true;
         try {
             const resp = await addToCart(reqBody);
             if (resp && resp.data) {
-                setCartCount(cartCount + 1);
+                setCartCount((count) => count + 1);
                 notifyToaster("Item added to cart.");
             }
             else {
@@ -319,7 +327,14 @@ const ProductDetails = () => {
             }
         }
         catch (err) {
-            notifyError();
+            if (err?.response?.data?.errorType === "OutOfStock") {
+                notifyToaster(err.response.data.message);
+            } else {
+                notifyError();
+            }
+        }
+        finally {
+            addingToCart.current = false;
         }
     }
 

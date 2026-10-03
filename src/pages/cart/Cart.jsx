@@ -6,6 +6,7 @@ import useUserHook from "../../context/UserContext";
 import { createOrder, paymentVerificationApi } from "../../api/orders";
 import { useNavigate } from "react-router";
 import { notifyError, notifyToaster } from "../../components/notifyToaster";
+import { getAvailableCartQuantity, getStockLimitMessage } from "../../helper/cartStock";
 
 
 const Cart = () => {
@@ -221,7 +222,7 @@ const Cart = () => {
       <div className="flex flex-col lg:flex-row items-start gap-12">
         <div className="w-full md:flex-1">
           {cartItems.map((item, index) => (
-            <ListItem item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
+            <ListItem key={`${item.product._id}-${item.variant?._id || "default"}`} item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
           ))}
         </div>
 
@@ -277,7 +278,16 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
         calculateCartAmount();
       }
     }
-    catch (err) { }
+    catch (err) {
+      if (err?.response?.data?.errorType === "OutOfStock") {
+        notifyToaster(err.response.data.message);
+      } else {
+        notifyError();
+      }
+      // Restore the saved quantity and totals when the server rejects an update.
+      await getCartItems();
+      await calculateCartAmount();
+    }
     finally {
       setBtnDisable(false);
     }
@@ -285,6 +295,12 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
 
   const handleQuantity = (flag) => {
     const qty = flag ? item.quantity + 1 : (item.quantity > 1 ? item.quantity - 1 : 1);
+    const available = getAvailableCartQuantity(item, cartItems);
+    if (flag && available !== undefined && qty > available) {
+      notifyToaster(getStockLimitMessage(item, available));
+      return;
+    }
+    if (qty === item.quantity) return;
     const newArr = [...cartItems];
     const newObj = { ...item, quantity: qty }
     newArr[index] = newObj;
