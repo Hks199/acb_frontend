@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaAngleRight } from "react-icons/fa6";
-import { IoIosStar } from "react-icons/io";
+import ProductRating from "../../components/ProductRating";
 import { Link, useNavigate, useParams } from "react-router";
 import { getAllCategories, getAllProducts, getProductsByCategory } from "../../api/products";
 import Pagination from '@mui/material/Pagination';
@@ -139,9 +139,8 @@ const AllProducts = () => {
                                     <div className='text-[#3B3B3B] text-[15px] leading-none break-words'>{product.product_name}</div>
                                     <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[product.category_id]}</div>
                                     {Number(product.review_count) > 0 && Number(product.avg_rating) > 0 && (
-                                        <div className="mt-3 flex justify-end items-center gap-1 text-sm font-semibold text-[#3B3B3B]" aria-label={`Average rating: ${Number(product.avg_rating).toFixed(1)} out of 5`}>
-                                            <IoIosStar className="text-[#FFD119]" size={18} aria-hidden="true" />
-                                            <span>{Number(product.avg_rating).toFixed(1)} / 5</span>
+                                        <div className="mt-3 flex justify-end">
+                                            <ProductRating average={product.avg_rating} count={product.review_count} />
                                         </div>
                                     )}
                                     <div className='mt-4 flex justify-between items-center'>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaAngleRight } from "react-icons/fa6";
-import { IoIosStar } from "react-icons/io";
+import ProductRating from '../../components/ProductRating';
 import { IoEarthOutline, IoPersonOutline, IoPersonCircleSharp } from "react-icons/io5";
 import { MdOutlinePayment } from "react-icons/md";
 import { FaCheck } from "react-icons/fa6";
@@ -399,7 +399,7 @@ const ProductDetails = () => {
                         <div className={`px-3 py-0.5 my-2 md:my-4 mr-3 ${(productDetail.isActive && productDetail.stock > 0) ? "text-[#027A48] bg-[#ECFDF3]" : "text-[#ff5469] bg-[#ffe8eb]"} font-medium flex items-center rounded-full`}>
                             <span className={`mr-2 w-2 h-2 ${(productDetail.isActive && productDetail.stock > 0) ? "bg-[#12B76A]" : "bg-[#ff5469]"} rounded-full`}></span> {(productDetail.isActive && productDetail.stock > 0) ? "Available" : "Not Available"}
                         </div>
-                        ({ratings.review}) <IoIosStar color='#FFD119' size={20} style={{ marginRight: 5, marginBottom: 3 }} /> <div className=''>Reviews</div>
+                        <ProductRating average={productDetail.avg_rating} count={productDetail.review_count} />
                     </div>
 
                     {/* Price */}
