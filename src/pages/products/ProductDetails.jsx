@@ -89,6 +89,9 @@ const ProductDetails = () => {
                     setProductImgs(imgArr.images);
                 }
                 else {
+                    setIsVarient(false);
+                    setCurrentVarientId(null);
+                    setCombinations([]);
                     setProductImgs(response.data.product.imageUrls);
                 }
                 fetchCategoryById(response.data.product.category_id);
@@ -194,6 +197,13 @@ const ProductDetails = () => {
     }
 
     const buyProduct = async () => {
+        const selectedVariant = combinations.find((variant) => variant._id === currentVarientId);
+        if (!productDetail?.isActive || !(Number(productDetail?.stock) > 0) ||
+            (isVarient && (!selectedVariant || !(Number(selectedVariant.stock) > 0)))) {
+            notifyToaster("Product unavailable");
+            return;
+        }
+
         if (!user) {
             navigate("/login");
             return;
@@ -289,10 +299,10 @@ const ProductDetails = () => {
         }
         catch (err) {
             if (err?.response?.data?.message === "400") {
-                notifyToaster("Product is out of stock!");
+                notifyToaster("Product unavailable");
             }
             else if (err?.response?.data?.errorType === "OutOfStock") {
-                notifyToaster("We’re sorry — the selected variant is unavailable!");
+                notifyToaster("Product unavailable");
             }
             else {
                 notifyError();
