@@ -8,6 +8,7 @@ import { getAllCategories, getAllProducts } from '../api/products';
 import { contact } from '../api/contact';
 import { notifyError, notifyToaster } from '../components/notifyToaster';
 import HeroSection from './HeroSection';
+import { handleBuyNowClick } from '../helper/buyNow';
 
 
 const bgColor = "F8FAFC";
@@ -152,7 +153,7 @@ const Homepage = () => {
                                 <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {categoryIdAndName[obj.category_id]}</div>
                                 <div className='mt-4 flex justify-between items-center'>
                                     <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {obj.price}</div>
-                                    <div className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
+                                    <div onClick={(event) => handleBuyNowClick(event, obj)} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
                                 </div>
                             </div>
                         </Link>

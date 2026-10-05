@@ -4,6 +4,7 @@ import ProductRating from "../../components/ProductRating";
 import { Link, useNavigate, useParams } from "react-router";
 import { getAllCategories, getAllProducts, getProductsByCategory } from "../../api/products";
 import Pagination from '@mui/material/Pagination';
+import { handleBuyNowClick } from '../../helper/buyNow';
 
 
 const AllProducts = () => {
@@ -145,7 +146,7 @@ const AllProducts = () => {
                                     )}
                                     <div className='mt-4 flex justify-between items-center'>
                                         <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {product.price}</div>
-                                        <div className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
+                                        <div onClick={(event) => handleBuyNowClick(event, product)} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
                                     </div>
                                 </div>
                             </Link>

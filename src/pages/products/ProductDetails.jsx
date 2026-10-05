@@ -16,6 +16,7 @@ import { createOrder, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
 import ImgMag from './ImgMag';
 import Loading from '../../components/Loading';
+import { handleBuyNowClick } from '../../helper/buyNow';
 
 
 const ProductDetails = () => {
@@ -137,8 +138,8 @@ const ProductDetails = () => {
 
     const checkPrice = (size, color) => {
         const selectedVarient = combinations.find((obj) => obj.Size === size && obj.Color === color);
-        setCurrentVarientId(selectedVarient._id);
-        setPrice(selectedVarient.price);
+        setCurrentVarientId(selectedVarient?._id ?? null);
+        setPrice(selectedVarient?.price ?? productDetail.price);
     }
 
     const changeImgColor = (clr) => {
@@ -197,9 +198,9 @@ const ProductDetails = () => {
     }
 
     const buyProduct = async () => {
-        const selectedVariant = combinations.find((variant) => variant._id === currentVarientId);
+        const selectedVariant = combinations.find((variant) => variant.Size === selectedSize && variant.Color === selectedColor);
         if (!productDetail?.isActive || !(Number(productDetail?.stock) > 0) ||
-            (isVarient && (!selectedVariant || !(Number(selectedVariant.stock) > 0)))) {
+            (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) > 0)))) {
             notifyToaster("Product unavailable");
             return;
         }
@@ -312,6 +313,11 @@ const ProductDetails = () => {
 
     const handleCart = async () => {
         if (addingToCart.current) return;
+        const selectedVariant = combinations.find((variant) => variant.Size === selectedSize && variant.Color === selectedColor);
+        if (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) > 0))) {
+            notifyToaster("Product unavailable");
+            return;
+        }
         if (!user) {
             notifyToaster("Please login to continue!");
             return;
@@ -501,7 +507,7 @@ const ProductDetails = () => {
                                     <div className='mt-1.5 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "} {category}</div>
                                     <div className='mt-4 flex justify-between items-center'>
                                         <div className='text-[#3B3B3B] text-lg font-semibold'>₹ {obj.price}</div>
-                                        <div className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
+                                        <div onClick={(event) => handleBuyNowClick(event, obj)} className="px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
                                     </div>
                                 </div>
                             </Link>

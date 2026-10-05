@@ -4,6 +4,7 @@ import Marquee from "react-fast-marquee";
 import { Link } from 'react-router';
 import { getAllVendors } from '../../api/vendor';
 import Pagination from '@mui/material/Pagination';
+import { handleBuyNowClick } from '../../helper/buyNow';
 
 
 const VendorList = () => {
@@ -72,7 +73,7 @@ const VendorList = () => {
                                         <div className='px-1 text-[#7B7B7B] text-[13px] font-semibold'>{"Category > "}{prdDetail?.category?.length > 15 ? `${prdDetail?.category.slice(0, 20)}...` : prdDetail?.category}</div>
                                         <div className='mt-2 flex items-center justify-between'>
                                         <div className='px-1 text-sm'>₹{prdDetail?.price}</div>
-                                        <div className="mr-4 px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
+                                        <div onClick={(event) => handleBuyNowClick(event, prdDetail)} className="mr-4 px-5 py-1 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br text-white text-sm rounded-full">Buy Now</div>
                                         </div>
                                     </Link>
                                 ))}
