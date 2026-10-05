@@ -1,4 +1,5 @@
 import { axiosClient } from '../../utils/axiosClient';
+export const getOrderQuote = (payload) => axiosClient.post('order/quote', payload);
 
 export const updateCartItem = async (payload) => {
   try {

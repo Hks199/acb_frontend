@@ -19,6 +19,7 @@ const setup = (file, product, stateOverrides, user = null) => {
   const messages = [];
   const requests = [];
   let paymentOpens = 0;
+  const paymentAmounts = [];
   const toaster = { notifyToaster: (message) => messages.push(message), notifyError: () => messages.push('error') };
   const helperModule = { exports: {} };
   vm.runInNewContext(compile('../src/helper/buyNow.js'), {
@@ -40,7 +41,7 @@ const setup = (file, product, stateOverrides, user = null) => {
     '../../context/UserContext': () => ({ user, setCartCount: () => {} }),
     '../../api/orders': { createOrder: async (body) => {
       requests.push(body);
-      return { data: { razorpayOrder: { id: 'order', amount: 499 } } };
+      return { data: { razorpayOrder: { id: 'order', amount: body.orderedItems.reduce((sum, item) => sum + item.total_price, 0) } } };
     } },
     '../components/notifyToaster': toaster,
     '../../components/notifyToaster': toaster,
@@ -50,12 +51,12 @@ const setup = (file, product, stateOverrides, user = null) => {
   const module = { exports: {} };
   vm.runInNewContext(compile(file), {
     module, exports: module.exports, require: (name) => dependencies[name] || (() => {}),
-    window: { Razorpay: class { open() { paymentOpens++; } on() {} } },
+    window: { Razorpay: class { constructor(options) { this.options = options; } open() { paymentOpens++; paymentAmounts.push(this.options.amount); } on() {} } },
   });
   const render = () => { stateIndex = 0; return walk(module.exports.default()); };
   return {
     get controls() { return render().filter((node) => node.props?.children === 'Buy Now'); },
-    render, messages, requests, get paymentOpens() { return paymentOpens; },
+    render, messages, requests, paymentAmounts, get paymentOpens() { return paymentOpens; },
   };
 };
 
@@ -124,9 +125,24 @@ test('an in-stock selected T-shirt size still opens checkout with its own varian
   const app = setup('../src/pages/products/ProductDetails.jsx', product, {
     0: false, 1: 'S', 2: '#000000', 3: 499, 5: 'small', 7: product, 10: true,
     13: [{ _id: 'small', Size: 'S', Color: '#000000', stock: 2, price: 499 }],
+    19: { items: [{ variantId: 'small', quantity: 1, effectiveUnitPrice: 499, finalTotal: 499 }], totalAmountToPay: 499 },
   }, shopper);
   await app.controls.find((node) => node.type === 'button').props.onClick();
   assert.equal(app.requests[0].orderedItems[0].variant_combination_id, 'small');
   assert.equal(app.paymentOpens, 1);
   assert.deepEqual(app.messages, []);
+});
+
+test('Buy Now uses the quoted ₹333 rate for all three T-shirts', async () => {
+  const product = { _id: 'shirt', product_name: 'T-shirt', price: 499, imageUrls: [], stock: 10, isActive: true };
+  const app = setup('../src/pages/products/ProductDetails.jsx', product, {
+    0: false, 1: 'S', 2: '#000000', 3: 499, 5: 'small', 7: product, 10: true,
+    13: [{ _id: 'small', Size: 'S', Color: '#000000', stock: 10, price: 499 }], 18: 3,
+    19: { items: [{ variantId: 'small', quantity: 3, effectiveUnitPrice: 333, finalTotal: 999 }], totalAmountToPay: 999 },
+  }, shopper);
+  await app.controls.find((node) => node.type === 'button').props.onClick();
+  assert.equal(app.requests[0].orderedItems[0].quantity, 3);
+  assert.equal(app.requests[0].orderedItems[0].price_per_unit, 333);
+  assert.equal(app.requests[0].orderedItems[0].total_price, 999);
+  assert.deepEqual(app.paymentAmounts, [99900]);
 });

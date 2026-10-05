@@ -12,7 +12,7 @@ import useUserHook from '../../context/UserContext';
 import { addToCart } from '../../api/cart';
 import parse from 'html-react-parser';
 import Pagination from '@mui/material/Pagination';
-import { createOrder, paymentVerificationApi } from '../../api/orders';
+import { createOrder, getOrderQuote, paymentVerificationApi } from '../../api/orders';
 import { notifyError, notifyToaster } from '../../components/notifyToaster';
 import ImgMag from './ImgMag';
 import Loading from '../../components/Loading';
@@ -45,6 +45,11 @@ const ProductDetails = () => {
     const [productImgs, setProductImgs] = useState([]);
     const [productImgObj, setProductImgObj] = useState(null);
     const [pages, setPages] = useState({ totalPages: 1, currentPage: 1 });
+    const [quantity, setQuantity] = useState(1);
+    const [pricing, setPricing] = useState(null);
+    const [pricingLoading, setPricingLoading] = useState(false);
+    const [pricingError, setPricingError] = useState('');
+    const buying = useRef(false);
 
 
     const fetchRatings = async (id, pageNum) => {
@@ -105,11 +110,31 @@ const ProductDetails = () => {
     }
 
     useEffect(() => {
+        setQuantity(1);
         setRatings({ rating: 0, review: 0, ratingsArr: [] });
         fetchProductDetails(id);
         fetchRatings(id, 1);
         window.scrollTo(0, 0);
     }, [id])
+
+    useEffect(() => {
+        let cancelled = false;
+        setPricing(null);
+        setPricingError('');
+        const selectedVariant = combinations.find((variant) => variant._id === currentVarientId);
+        if (!productDetail || !Number.isSafeInteger(quantity) || quantity < 1 ||
+            (isVarient && (!selectedVariant || selectedVariant.Size !== selectedSize || selectedVariant.Color !== selectedColor))) {
+            setPricingLoading(false);
+            return;
+        }
+        setPricingLoading(true);
+        getOrderQuote({ user_id: user?.userId, orderedItems: [{ product_id: productDetail._id,
+            ...(currentVarientId ? { variant_combination_id: currentVarientId } : {}), quantity }] })
+            .then((response) => { if (!cancelled) setPricing(response.data); })
+            .catch((error) => { if (!cancelled) setPricingError(error.response?.data?.message || 'Unable to calculate the current price. Please refresh.'); })
+            .finally(() => { if (!cancelled) setPricingLoading(false); });
+        return () => { cancelled = true; };
+    }, [productDetail, currentVarientId, isVarient, combinations, selectedSize, selectedColor, quantity, user?.userId]);
 
     const handlePagination = (event, value) => {
         setPages((prev) => ({ ...prev, currentPage: value }));
@@ -179,28 +204,11 @@ const ProductDetails = () => {
         }
     }
 
-    const calculateDiscount = () => {
-        let discount = 0;
-        const amount = currentVarientId ? price : productDetail.price;
-
-        // Apply 10% discount if orderData is 1
-        if (user && user?.order_flag === 1) {
-            discount += 10;
-        }
-
-        // Apply extra 5% if price > 3999
-        if (amount > 3999) {
-            discount += 5;
-        }
-
-        const finalPrice = amount - (amount * discount) / 100;
-        return finalPrice;
-    }
-
     const buyProduct = async () => {
+        if (buying.current) return;
         const selectedVariant = combinations.find((variant) => variant.Size === selectedSize && variant.Color === selectedColor);
-        if (!productDetail?.isActive || !(Number(productDetail?.stock) > 0) ||
-            (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) > 0)))) {
+        if (!productDetail?.isActive || !Number.isSafeInteger(quantity) || quantity < 1 || !(Number(productDetail?.stock) >= quantity) ||
+            (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) >= quantity)))) {
             notifyToaster("Product unavailable");
             return;
         }
@@ -210,7 +218,12 @@ const ProductDetails = () => {
             return;
         }
 
-        const finalPrice = calculateDiscount();
+        if (!pricing || pricingLoading || pricing.items[0]?.quantity !== quantity ||
+            String(pricing.items[0]?.variantId || '') !== String(currentVarientId || '')) {
+            notifyToaster(pricingError || 'Please wait for the current price to load.');
+            return;
+        }
+        const finalPrice = pricing.items[0].effectiveUnitPrice;
 
         const userData = {
             fullName: user?.firstName || "",
@@ -230,9 +243,9 @@ const ProductDetails = () => {
 
         const itemObj = {
             product_id: productDetail._id,
-            quantity: 1,
+            quantity,
             price_per_unit: finalPrice,
-            total_price: finalPrice
+            total_price: pricing.items[0].finalTotal
         }
 
         if (currentVarientId) {
@@ -257,14 +270,20 @@ const ProductDetails = () => {
             deliveryCharge: 0
         }
 
+        buying.current = true;
         try {
             const resp = await createOrder(reqBody);
             if (resp && resp.data) {
                 // console.log("resp.data -> ", resp.data);
+                if (resp.data.pricing && resp.data.pricing.totalAmountToPay !== pricing.totalAmountToPay) {
+                    setPricing(resp.data.pricing);
+                    notifyToaster('The price has changed. Review the updated total and click Buy Now again.');
+                    return;
+                }
 
                 const options = {
                     key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-                    amount: Number(resp.data.razorpayOrder.amount) * 100,
+                    amount: Math.round(Number(resp.data.razorpayOrder.amount) * 100),
                     // currency: data.currency,
                     currency: "INR",
                     name: "Art & Craft From Bharat",
@@ -309,12 +328,14 @@ const ProductDetails = () => {
                 notifyError();
             }
         }
+        finally { buying.current = false; }
     }
 
     const handleCart = async () => {
         if (addingToCart.current) return;
         const selectedVariant = combinations.find((variant) => variant.Size === selectedSize && variant.Color === selectedColor);
-        if (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) > 0))) {
+        if (!Number.isSafeInteger(quantity) || quantity < 1 || !(Number(productDetail?.stock) >= quantity) ||
+            (isVarient && (!selectedVariant || selectedVariant._id !== currentVarientId || !(Number(selectedVariant.stock) >= quantity)))) {
             notifyToaster("Product unavailable");
             return;
         }
@@ -326,7 +347,7 @@ const ProductDetails = () => {
         const reqBody = {
             user_id: user.userId,
             product_id: id,
-            quantity: 1
+            quantity
         }
 
         if (currentVarientId) reqBody["variant_id"] = currentVarientId;
@@ -335,7 +356,7 @@ const ProductDetails = () => {
         try {
             const resp = await addToCart(reqBody);
             if (resp && resp.data) {
-                setCartCount((count) => count + 1);
+                setCartCount((count) => count + quantity);
                 notifyToaster("Item added to cart.");
             }
             else {
@@ -420,16 +441,11 @@ const ProductDetails = () => {
 
                     {/* Price */}
                     <div className='flex items-center'>
-                        <div className="text-2xl md:text-3xl font-semibold">₹ {price}</div>
+                        <div className="text-2xl md:text-3xl font-semibold">₹ {pricing?.items?.[0]?.effectiveUnitPrice ?? price}</div>
                         {(actualPrice !== 0 && actualPrice !== "0" && actualPrice !== "") && (
                             <div className='text-xl text-gray-600 ml-4 line-through'>₹{actualPrice}</div>
                         )}
                     </div>
-
-                    {/* Discounts */}
-                    {((user && user?.order_flag === 1) || price > 3999) && (
-                        <div className='text-green-500'>{((user && user?.order_flag === 1) && price > 3999) ? "Extra 15% off on Buy Now" : ((user && user?.order_flag === 1) ? "Extra 10% off on Buy Now" : "Extra 5% off on Buy Now")}</div>
-                    )}
 
                     {/* Features */}
                     <ul className="my-4 space-y-1.5 text-[#52525B]">
@@ -467,6 +483,14 @@ const ProductDetails = () => {
                     )}
 
                     {/* Buttons */}
+                    <label className="mt-5 flex items-center gap-3">Quantity
+                        <input aria-label="Quantity" type="number" min="1" step="1" value={quantity}
+                            className="w-20 rounded border p-2"
+                            onChange={(event) => setQuantity(event.target.value === '' ? '' : Number(event.target.value))} />
+                    </label>
+                    {pricing?.tshirtOffer && <p className="mt-3 text-green-700">Buy {pricing.tshirtOffer.minimumQuantity} or more eligible T-shirts for ₹{pricing.tshirtOffer.unitPrice} each.
+                        {pricing.tshirtOffer.combineProducts && ' Mix eligible designs, sizes, and colors in your cart.'}</p>}
+                    <p className="mt-3" aria-live="polite">{pricingLoading ? 'Calculating price…' : pricingError || (pricing ? `Total for ${quantity}: ₹${pricing.totalAmountToPay}` : '')}</p>
                     <button onClick={buyProduct} className="py-3 mt-9 bg-gradient-to-r from-[#FF5E5E] to-[#FA1A8A] hover:bg-gradient-to-br font-semibold text-white text-[16px] w-full md:w-[90%] rounded-full">Buy Now</button>
                     <button onClick={handleCart} className="py-3 mt-4 border-2 border-[#F75E69] font-semibold text-[#F75E69] text-[16px] w-full md:w-[90%] rounded-full">Add to cart</button>
                 </div>

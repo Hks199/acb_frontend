@@ -17,6 +17,11 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalDiscountedPrice, setTotalDiscountedPrice] = useState(0);
   const [btnDisable, setBtnDisable] = useState(false);
+  const [pricing, setPricing] = useState(null);
+  const [pricingLoading, setPricingLoading] = useState(true);
+  const [pricingError, setPricingError] = useState('');
+  const pricingRequest = useRef(0);
+  const confirmingOrder = useRef(false);
 
   const getCartItems = async () => {
     try {
@@ -41,16 +46,27 @@ const Cart = () => {
   }
 
   const calculateCartAmount = async () => {
+    const request = ++pricingRequest.current;
+    setPricingLoading(true);
+    setPricingError('');
     try {
       const resp = await calculateCartTotalAmount(user.userId);
+      if (request !== pricingRequest.current) return;
       if (resp && resp.data && resp.data.success) {
-        const totalAmt = (resp.data.totalAmountAfterDiscount !== 0 && resp.data.totalAmountAfterDiscount < resp.data.totalAmount) ? resp.data.totalAmountAfterDiscount : resp.data.totalAmount
+        const totalAmt = resp.data.totalAmountAfterDiscount;
+        setPricing(resp.data);
         setOriginalPrice(resp.data.totalAmount);
         setTotalPrice(totalAmt);
-        setTotalDiscountedPrice(resp.data.addition_discount);
+        setTotalDiscountedPrice(Math.round((resp.data.totalAmount - totalAmt) * 100) / 100);
       }
+      else { throw new Error('Unable to calculate cart pricing.'); }
     }
-    catch (err) { }
+    catch (err) {
+      if (request !== pricingRequest.current) return;
+      setPricing(null);
+      setPricingError(err.response?.data?.message || 'Unable to calculate the cart total. Please refresh.');
+    }
+    finally { if (request === pricingRequest.current) setPricingLoading(false); }
   }
 
   useEffect(() => {
@@ -65,6 +81,9 @@ const Cart = () => {
       if (resp && resp.data) {
         setCartItems([]);
         setTotalPrice(0);
+        setOriginalPrice(0);
+        setTotalDiscountedPrice(0);
+        setPricing(null);
       }
     }
     catch (err) { }
@@ -81,6 +100,7 @@ const Cart = () => {
   }
 
   const confirmOrder = async () => {
+    if (confirmingOrder.current || btnDisable || pricingLoading || !pricing) return;
     if (!user) {
       navigate("/login");
       return;
@@ -104,12 +124,10 @@ const Cart = () => {
 
     const itemsArr = [];
     for (let i = 0; i < cartItems.length; i++) {
-      const { product, quantity, variant, fallback_price } = cartItems[i];
+      const { product, quantity, variant } = cartItems[i];
       const itemObj = {
         product_id: product._id,
         quantity: quantity,
-        price_per_unit: variant ? variant.price : fallback_price,
-        total_price: (variant ? variant.price : fallback_price) * quantity
       }
 
       if (variant && variant._id) {
@@ -139,14 +157,20 @@ const Cart = () => {
       deliveryCharge: 0
     }
     // console.log("reqBody", reqBody);
+    confirmingOrder.current = true;
     try {
       const resp = await createOrder(reqBody);
       if (resp && resp.data) {
         // console.log("resp.data -> ", resp.data);
+        if (resp.data.pricing && resp.data.pricing.totalAmountToPay !== totalPrice) {
+          await calculateCartAmount();
+          notifyToaster('The price has changed. Review the updated total and confirm again.');
+          return;
+        }
 
         const options = {
           key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-          amount: Number(resp.data.razorpayOrder.amount) * 100,
+          amount: Math.round(Number(resp.data.razorpayOrder.amount) * 100),
           // currency: data.currency,
           currency: "INR",
           name: "Art & Craft From Bharat",
@@ -185,35 +209,15 @@ const Cart = () => {
       }
     }
     catch (err) {
-      if (err?.response?.data?.message === "400") {
-        const str = err?.response?.data?.errorType;
-        const matches = str.match(/[a-zA-Z0-9]+/g);
-        const lastSequence = matches ? matches[matches.length - 1] : null;
-        const prdName = cartItems.find((obj) => obj?.product?._id === lastSequence)?.product.name;
-        if (prdName) {
-          notifyToaster(prdName + " is out of stock");
-        }
-        else {
-          notifyError();
-        }
-      }
-      else if (err?.response?.data?.errorType === "OutOfStock") {
-        const str = err?.response?.data?.message;
-        const matches = str.match(/[a-zA-Z0-9]+/g);
-        const lastSequence = matches ? matches[matches.length - 1] : null;
-        const prdName = cartItems.find((obj) => obj?.variant?._id === lastSequence ? obj : null);
-        if (prdName?.product?.name) {
-          notifyToaster(`We’re sorry — the selected variant of ${prdName?.product?.name} is unavailable!`);
-        }
-        else {
-          notifyError();
-        }
-      }
-      else {
-        notifyError();
+      if (err?.response?.data?.message === "400" || err?.response?.data?.errorType === "OutOfStock") {
+        notifyToaster("Product unavailable");
+      } else {
+        notifyError(err?.response?.data?.message);
       }
     }
+    finally { confirmingOrder.current = false; }
   }
+
 
 
   return (
@@ -222,15 +226,18 @@ const Cart = () => {
       <div className="flex flex-col lg:flex-row items-start gap-12">
         <div className="w-full md:flex-1">
           {cartItems.map((item, index) => (
-            <ListItem key={`${item.product._id}-${item.variant?._id || "default"}`} item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount} />
+            <ListItem key={`${item.product._id}-${item.variant?._id || "default"}`} item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount}
+              priceLine={pricing?.items?.find((line) => String(line.productId) === String(item.product._id) && String(line.variantId || '') === String(item.variant?._id || ''))} updatingPrice={btnDisable || pricingLoading} />
           ))}
         </div>
 
         <div className="w-full max-w-sm bg-[#FAFAFA] p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Summary</h3>
+          {pricingError && <p role="alert" className="text-red-600">{pricingError}</p>}
+          {pricing?.tshirtOffer && <p className="mb-3 text-green-700">{pricing.tshirtOffer.minimumQuantity}+ eligible T-shirts: ₹{pricing.tshirtOffer.unitPrice} each. Eligible quantity: {pricing.tshirtOffer.eligibleQuantity}.</p>}
           <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
             <span>Subtotal</span>
-            <span>{btnDisable ? "..." : "₹" + originalPrice}</span>
+            <span>{btnDisable || pricingLoading ? "..." : "₹" + originalPrice}</span>
           </div>
           <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
             <span>Tax</span>
@@ -242,13 +249,13 @@ const Cart = () => {
           </div>
           <div className="flex justify-between pt-4 font-semibold text-lg">
             <span>Total</span>
-            <span className="text-[#69D3A8]">{btnDisable ? "..." : "₹" + totalPrice}</span>
+            <span className="text-[#69D3A8]">{btnDisable || pricingLoading ? "..." : pricing ? "₹" + totalPrice : 'Unavailable'}</span>
           </div>
           {totalDiscountedPrice !== 0 && (
-            <div className="py-1.5 px-4 mt-3 mb-4 w-full bg-green-100 text-center text-[#69D3A8] text- rounded">₹{totalDiscountedPrice} will be discounted.</div>
+            <div className="py-1.5 px-4 mt-3 mb-4 w-full bg-green-100 text-center text-[#69D3A8] text- rounded">{btnDisable || pricingLoading ? 'Updating savings…' : `You save ₹${totalDiscountedPrice}.`}</div>
           )}
           {cartItems.length > 0 && (
-            <button disabled={btnDisable} onClick={confirmOrder} className={`w-full ${btnDisable ? "bg-[#cccccc]" : "bg-[#F75E69]"} bg-[#F75E69] text-white py-2 rounded-md mb-3`}>
+            <button disabled={btnDisable || pricingLoading || !pricing} onClick={confirmOrder} className={`w-full ${btnDisable || pricingLoading || !pricing ? "bg-[#cccccc]" : "bg-[#F75E69]"} text-white py-2 rounded-md mb-3`}>
               {btnDisable ? "..." : "Confirm Order"}
             </button>
           )}
@@ -259,7 +266,7 @@ const Cart = () => {
 }
 
 
-const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCartItems, calculateCartAmount, setCartCount }) => {
+const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCartItems, calculateCartAmount, setCartCount, priceLine, updatingPrice }) => {
   const { user } = useUserHook();
   const debounceTimer = useRef(null);
 
@@ -275,7 +282,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
     try {
       const resp = await updateCartItem(reqBody);
       if (resp && resp.data && resp.data.success) {
-        calculateCartAmount();
+        await calculateCartAmount();
       }
     }
     catch (err) {
@@ -294,6 +301,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
   }
 
   const handleQuantity = (flag) => {
+    if (updatingPrice) return;
     const qty = flag ? item.quantity + 1 : (item.quantity > 1 ? item.quantity - 1 : 1);
     const available = getAvailableCartQuantity(item, cartItems);
     if (flag && available !== undefined && qty > available) {
@@ -316,7 +324,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       updateCartQuantity(qty);
-    }, 1500); // adjust delay as needed
+    }, 300);
   }
 
   const deleteCartItems = async () => {
@@ -331,8 +339,8 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
     try {
       const resp = await removeCartItem(reqBody);
       if (resp && resp.data && resp.data.success) {
-        getCartItems();
-        calculateCartAmount();
+        await getCartItems();
+        await calculateCartAmount();
       }
     }
     catch (err) { }
@@ -345,18 +353,19 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
         <img src={item.product.image} className="w-16 h-16 object-cover rounded-lg" />
         <div>
           <h4 className="font-semibold text-sm">{item.product.name}</h4>
-          <p className="text-[#F75E69]">₹{item.variant ? item.variant.price : item.fallback_price}</p>
+          <p className="text-[#F75E69]">{updatingPrice ? 'Updating price…' : priceLine ? `₹${priceLine.effectiveUnitPrice} each · ₹${priceLine.finalTotal} total` : 'Price unavailable'}</p>
+          {priceLine?.bulkOfferApplied && <p className="text-sm text-green-700">T-shirt offer applied</p>}
         </div>
       </div>
 
       <div className="mt-4 md:mt-0 flex self-end items-center gap-4">
         <div className="flex border rounded-md">
-          <button onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
+          <button disabled={updatingPrice} onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
           <div className="px-4 font-semibold text-lg">{item.quantity}</div>
-          <button onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
+          <button disabled={updatingPrice} onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
         </div>
 
-        <button onClick={deleteCartItems} className="text-2xl hover:text-[#F75E69]"><MdDelete /></button>
+        <button disabled={updatingPrice} onClick={deleteCartItems} className="text-2xl hover:text-[#F75E69]"><MdDelete /></button>
       </div>
     </div>
   )
