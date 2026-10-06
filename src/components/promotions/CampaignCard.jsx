@@ -49,9 +49,9 @@ export default function CampaignCard({ campaign, onAction, onClose, onExpired, p
   };
   const newsletter = campaign.displayType === 'newsletter_signup';
   const chunks = [Math.floor(remaining / 86400), Math.floor(remaining % 86400 / 3600), Math.floor(remaining % 3600 / 60), remaining % 60];
-  return <section className={`promo-card ${campaign.backgroundTheme === 'glass_light' ? 'promo-light' : 'promo-dark'} ${compact ? 'promo-compact' : ''}`}>
+  return <section className={`promo-card ${campaign.backgroundTheme === 'glass_light' ? 'promo-light' : 'promo-dark'} ${compact ? 'promo-compact' : ''} ${campaign.imageFit === 'contain' ? 'promo-image-contain' : ''} ${campaign.imageUrl && !imageFailed ? 'promo-has-image' : ''} ${campaign.showImageOnMobile === false ? 'promo-hide-mobile-image' : ''}`}>
     <div className="promo-art" aria-hidden="true">
-      {campaign.imageUrl && !imageFailed ? <img src={campaign.imageUrl} alt="" onError={() => setImageFailed(true)} /> : <div className="promo-art-fallback"><span>AC</span><p>Made by hand.<br />Chosen with heart.</p></div>}
+      {campaign.imageUrl && !imageFailed ? <img src={campaign.imageUrl} alt="" style={{ objectFit: campaign.imageFit === 'contain' ? 'contain' : 'cover', objectPosition: ['center', 'top', 'bottom', 'left', 'right'].includes(campaign.imagePosition) ? campaign.imagePosition : 'center' }} onError={() => setImageFailed(true)} /> : <div className="promo-art-fallback"><span>AC</span><p>Made by hand.<br />Chosen with heart.</p></div>}
       <div className="promo-art-caption">ART & CRAFT <span>FROM BHARAT</span></div>
     </div>
     <div className="promo-content">

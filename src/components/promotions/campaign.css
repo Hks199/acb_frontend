@@ -4,6 +4,8 @@
 .promo-art { position: relative; background: #344e43; min-width: 0; }
 .promo-art > img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
 .promo-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 45%,rgba(8,24,17,.7)); pointer-events: none; }
+.promo-image-contain .promo-art::after { background: none; }
+.promo-image-contain .promo-art-caption { display: none; }
 .promo-art-fallback { height: 100%; min-height: 460px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(ellipse at 0 0,#91a982,transparent 70%), radial-gradient(ellipse at 100% 100%,#b8955e,transparent 65%),#294940; text-align: center; color: #fff8e9; }
 .promo-art-fallback > span { border: 1px solid rgba(255,255,255,.5); border-radius: 50%; padding: 30px; font: 48px Georgia,serif; }
 .promo-art-fallback p { font: italic 25px/1.35 Georgia,serif; margin-top: 26px; }
@@ -36,11 +38,19 @@
 .promo-countdown span { font-size: 8px; color: var(--promo-muted); }
 .promo-compact { grid-template-columns: 1fr; min-height: 0; }
 .promo-compact .promo-art { display: none; }
+.promo-compact.promo-has-image:not(.promo-hide-mobile-image) .promo-art { display: block; height: 180px; }
+.promo-compact .promo-art-caption { display: none; }
+.promo-compact .promo-art::after { background: none; }
+.promo-compact.promo-has-image:not(.promo-hide-mobile-image) .promo-close { background: rgba(8,24,17,.75); color: white; border-color: rgba(255,255,255,.4); z-index: 2; }
 .promo-compact .promo-content { padding: 52px 24px 28px; }
 .promo-compact .promo-content h2 { font-size: 30px; }
 @media (max-width: 600px) {
   .promo-card { grid-template-columns: 1fr; min-height: 0; border-radius: 18px; }
   .promo-art { display: none; }
+  .promo-has-image:not(.promo-hide-mobile-image) .promo-art { display: block; height: 180px; }
+  .promo-art-caption { display: none; }
+  .promo-art::after { background: none; }
+  .promo-has-image:not(.promo-hide-mobile-image) .promo-close { background: rgba(8,24,17,.75); color: white; border-color: rgba(255,255,255,.4); z-index: 2; }
   .promo-content { padding: 52px 24px 28px; }
   .promo-content h2 { font-size: 30px; }
 }
