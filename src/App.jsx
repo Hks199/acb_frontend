@@ -5,6 +5,7 @@ import ProductDetails from './pages/products/ProductDetails';
 import UserProfile from './pages/profile/UserProfile';
 import Navbar from './components/Navbar';
 import AnnouncementBar from './components/AnnouncementBar';
+import PromotionalPopups from './components/promotions/PromotionalPopups';
 import Footer from './components/Footer';
 import AllProducts from './pages/products/AllProducts';
 import Cart from './pages/cart/Cart';
@@ -140,6 +141,7 @@ function App() {
       <Footer />
       </>}
 
+      <PromotionalPopups />
       <ToastContainer progressClassName="custom-progress-bar" />
     </>
   );
