@@ -219,7 +219,7 @@ function Navbar(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar component="nav" sx={{
+      <AppBar position="static" component="nav" sx={{
     boxShadow: '0px 4px 10px rgba(188, 188, 188, 0.26)', // Red shadow
   }}>
         <Toolbar style={{display:"flex", justifyContent:"space-between", backgroundColor:"#ffffff"}}>
@@ -315,9 +315,6 @@ function Navbar(props) {
           {drawer}
         </Drawer>
       </nav>
-      <Box component="main" sx={{ p: 0 }}>
-        <Toolbar/>
-      </Box>
 
       <OpenImage openImg={openImg} setOpenImg={setOpenImg} />
     </Box>

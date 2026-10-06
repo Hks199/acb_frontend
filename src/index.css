@@ -125,3 +125,18 @@
     width: 16px;
   }
 }
+
+/* The whole header remains in flow, including mobile announcement wrapping. */
+.storefront-header { position: sticky; top: 0; z-index: 1100; width: 100%; }
+.announcement-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 6px 12px; padding: 10px 16px; min-width: 0; width: 100%;
+  font-size: 14px; line-height: 1.5; text-align: center; text-decoration: none;
+}
+a.announcement-bar:hover { filter: brightness(.95); }
+a.announcement-bar:focus-visible { outline: 2px solid white; outline-offset: -4px; }
+.announcement-badge {
+  flex-shrink: 0; padding: 2px 8px; border-radius: 4px;
+  background: rgba(255,255,255,.2); font-size: 12px; font-weight: 700;
+}
+.announcement-text { min-width: 0; overflow-wrap: anywhere; white-space: normal; }

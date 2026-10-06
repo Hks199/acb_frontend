@@ -4,6 +4,7 @@ import Homepage from './pages/Homepage';
 import ProductDetails from './pages/products/ProductDetails';
 import UserProfile from './pages/profile/UserProfile';
 import Navbar from './components/Navbar';
+import AnnouncementBar from './components/AnnouncementBar';
 import Footer from './components/Footer';
 import AllProducts from './pages/products/AllProducts';
 import Cart from './pages/cart/Cart';
@@ -71,11 +72,14 @@ function App() {
     getUserByToken();
   }, []);
 
-  if (loadingUser) return <Loading />
 
   return (
     <>
-      <Navbar user={user} isAuth={isAuth} />
+      <header className="storefront-header">
+        <AnnouncementBar />
+        <Navbar user={user} isAuth={isAuth} />
+      </header>
+      {loadingUser ? <Loading /> : <>
       <Routes>
         <Route path="/" element={<Homepage />} />
 
@@ -134,6 +138,7 @@ function App() {
         <Route path="*" element={<Homepage />} />
       </Routes>
       <Footer />
+      </>}
 
       <ToastContainer progressClassName="custom-progress-bar" />
     </>
