@@ -15,7 +15,8 @@ const safeLink = (value) => {
   } catch { return undefined; }
 };
 export default function AnnouncementBar() {
-  const [announcement, setAnnouncement] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [index, setIndex] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     let pending = false;
@@ -24,10 +25,16 @@ export default function AnnouncementBar() {
       pending = true;
       try {
         const response = await axiosClient.get('announcement/active', { signal: controller.signal });
-        if (!controller.signal.aborted) setAnnouncement(response.data?.isActive ? response.data : null);
+        if (!controller.signal.aborted) {
+          // Accept the previous single-document response during rolling deployments.
+          const data = Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+          const active = data.filter((item) => item?.isActive && typeof item.text === 'string' && item.text.trim());
+          setAnnouncements(active);
+          setIndex((previous) => previous % Math.max(1, active.length));
+        }
       } catch {
         // Hide a stale announcement when its visibility cannot be confirmed.
-        if (!controller.signal.aborted) setAnnouncement(null);
+        if (!controller.signal.aborted) { setAnnouncements([]); setIndex(0); }
       } finally { pending = false; }
     };
     refresh();
@@ -40,12 +47,26 @@ export default function AnnouncementBar() {
       document.removeEventListener('visibilitychange', refresh);
     };
   }, []);
-  if (!announcement?.isActive || !announcement.text) return null;
-  const href = safeLink(announcement.targetUrl);
-  const Container = href ? 'a' : 'div';
-  return <Container href={href} aria-label={href ? undefined : 'Store announcement'}
-    className={`announcement-bar ${styles[announcement.badge?.type] || styles.info}`}>
-    {announcement.badge?.text && <span className="announcement-badge">{announcement.badge.text}</span>}
-    <span className="announcement-text">{announcement.text}</span>
-  </Container>;
+  useEffect(() => {
+    if (announcements.length < 2) return;
+    const interval = window.setInterval(() => {
+      setIndex((previous) => (previous + 1) % announcements.length);
+    }, 8000);
+    return () => window.clearInterval(interval);
+  }, [announcements.length]);
+
+  if (!announcements.length) return null;
+  return <div className="announcement-rotator" aria-label="Store announcements">
+    {announcements.map((announcement, position) => {
+      const current = position === index;
+      const href = safeLink(announcement.targetUrl);
+      const Container = href ? 'a' : 'div';
+      return <Container key={announcement._id || position} href={href}
+        aria-hidden={!current} inert={!current} tabIndex={href && !current ? -1 : undefined}
+        className={`announcement-bar announcement-slide ${current ? 'is-active' : ''} ${styles[announcement.badge?.type] || styles.info}`}>
+        {announcement.badge?.text && <span className="announcement-badge">{announcement.badge.text}</span>}
+        <span className="announcement-text">{announcement.text}</span>
+      </Container>;
+    })}
+  </div>;
 }

@@ -140,3 +140,16 @@ a.announcement-bar:focus-visible { outline: 2px solid white; outline-offset: -4p
   background: rgba(255,255,255,.2); font-size: 12px; font-weight: 700;
 }
 .announcement-text { min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+
+/* All slides share a grid cell, reserving the tallest message's natural height. */
+.announcement-rotator { display: grid; overflow: hidden; }
+.announcement-slide {
+  grid-area: 1 / 1; opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-6px); transition: opacity .35s ease, transform .35s ease, visibility .35s;
+}
+.announcement-slide.is-active {
+  opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); z-index: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .announcement-slide { transition: none; transform: none; }
+}
