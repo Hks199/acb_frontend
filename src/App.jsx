@@ -5,6 +5,7 @@ import ProductDetails from './pages/products/ProductDetails';
 import UserProfile from './pages/profile/UserProfile';
 import Navbar from './components/Navbar';
 import AnnouncementBar from './components/AnnouncementBar';
+import FaqSection from './components/FaqSection';
 import PromotionalPopups from './components/promotions/PromotionalPopups';
 import Footer from './components/Footer';
 import AllProducts from './pages/products/AllProducts';
@@ -89,6 +90,7 @@ function App() {
 
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/return-and-refund" element={<ReturnRefund />} />
+        <Route path="/faq" element={<FaqSection standalone />} />
         <Route path="/art-gallery" element={<VendorList />} />
 
         {/* Protected Route */}

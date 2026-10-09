@@ -8,6 +8,7 @@ import { getAllCategories, getAllProducts } from '../api/products';
 import { contact } from '../api/contact';
 import { notifyError, notifyToaster } from '../components/notifyToaster';
 import HeroSection from './HeroSection';
+import FaqSection from '../components/FaqSection';
 import { handleBuyNowClick } from '../helper/buyNow';
 
 
@@ -176,6 +177,8 @@ const Homepage = () => {
                     </div>
                 </div>
             </div>
+
+            <FaqSection />
 
             <div id="contact" className='md:px-20 mt-20 mb-30 w-full text-center relative'>
                 <div className='mb-3 text-2xl font-semibold'>Get in Touch</div>

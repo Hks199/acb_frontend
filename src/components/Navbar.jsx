@@ -37,6 +37,7 @@ const navItems = [
   { title: 'About Us', path: '/#about' },
   { title: 'Artist Masterpiece', path: '/art-gallery' },
   { title: 'Contact Us', path: '/#contact' },
+  { title: 'FAQs', path: '/faq' },
 ];
 
 const CartBadge = styled(Badge)`
@@ -228,25 +229,25 @@ function Navbar(props) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' }, color:"#424242", width:"10%" }}
+            sx={{ mr: 2, display: { lg: 'none' }, color:"#424242", width:"10%" }}
           >
             <FiMenu style={{color:"#F75E69"}}/>
           </IconButton>
-          <div onClick={() => navigate("/")} className='pr-[10%] w-[90%] text-[#F75E69] font-semibold text-center sm:hidden cursor-pointer'>Art & Craft from Bharat</div>
+          <div onClick={() => navigate("/")} className='pr-[10%] w-[90%] text-[#F75E69] font-semibold text-center min-[1200px]:hidden cursor-pointer'>Art & Craft from Bharat</div>
 
 
-            <div className='pl-10 hidden sm:inline-block w-[20%]'>
+            <div className='pl-6 hidden min-[1200px]:inline-block w-[15%]'>
               <img src={logo} className='h-12 cursor-pointer' onClick={() => setOpenImg(true)}/>
             </div>
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent:"center", width:"60%" }}>
+            <Box sx={{ display: { xs: 'none', lg: 'flex' }, justifyContent:"center", flex: 1 }}>
                 {navItems.map((item) => (
-                <Button key={item.title} onClick={() => navigate(item.path)} sx={{ color: location.pathname === item.path ? '#F75E69' : '#424242', textTransform:"capitalize", mx:2 }}>
+                <Button key={item.title} onClick={() => navigate(item.path)} sx={{ color: location.pathname === item.path ? '#F75E69' : '#424242', textTransform:"capitalize", mx: 0.5, whiteSpace: 'nowrap' }}>
                     {item.title}
                 </Button>
                 ))}
             </Box>
 
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent:"flex-end", paddingRight:5, width:"20%", minWidth:150 }}>
+            <Box sx={{ display: { xs: 'none', lg: 'flex' }, justifyContent:"flex-end", paddingRight: 3, minWidth: 120 }}>
                   <IconButton onClick={handleCart} style={{position:"relative"}}>
                     <FiShoppingCart color='#F75E69' />
                     {isAuth && cartCount !== 0 && (
@@ -308,7 +309,7 @@ function Navbar(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
+            display: { xs: 'block', lg: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >

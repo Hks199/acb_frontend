@@ -1,5 +1,13 @@
 # React + Vite
 
+## FAQs
+
+FAQs appear before the homepage contact form and at `/faq`, linked from desktop/mobile navigation and the footer. Questions expand with mouse, touch, or keyboard; answers render as plain text with preserved line breaks. The section refreshes every 30 seconds and on tab focus, and includes loading, empty, and retry states.
+
+Manage content in the sibling admin app under **Store management > FAQs**. Add or edit both question and answer, publish/hide, delete, and set display order (lower numbers first). New FAQs default to hidden. No sample policy answers are published automatically.
+
+Deploy the backend at `C:/Users/admin/Documents/acb_project` first, then rebuild/deploy both Vite apps using their existing `VITE_API_URL` with the `/api/` prefix. MongoDB creates the `faqs` collection on the first save; no SQL migration is needed. See the admin README for the API contract.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

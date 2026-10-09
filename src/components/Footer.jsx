@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FaFacebookF, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import logo from "../assets/logo.jpeg";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { getAllCategories } from "../api/products";
 import OpenImage from "./OpenImage";
 
@@ -64,6 +64,7 @@ const Footer = () => {
                         <div className='text-white'>
                             <div className='mb-3 font-semibold text-lg'>Quick Links</div>
                             <div onClick={() => navigate("/")} className="mb-2 cursor-pointer">Home</div>
+                            <Link to="/faq" className="block mb-2">FAQs</Link>
                             <div onClick={() => navigate("/return-and-refund")} className="cursor-pointer">Return & Refund Policy</div>
                             {/* <div>Terms & Conditions</div> */}
                             {/* <div className='my-2'>Privacy Policy</div> */}
