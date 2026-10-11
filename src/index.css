@@ -130,7 +130,7 @@
 .storefront-header { position: sticky; top: 0; z-index: 1100; width: 100%; }
 .announcement-bar {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-  gap: 6px 12px; padding: 10px 16px; min-width: 0; width: 100%;
+  gap: 6px 12px; padding: 15px 16px; min-width: 0; width: 100%;
   font-size: 14px; line-height: 1.5; text-align: center; text-decoration: none;
 }
 a.announcement-bar:hover { filter: brightness(.95); }
@@ -139,7 +139,7 @@ a.announcement-bar:focus-visible { outline: 2px solid white; outline-offset: -4p
   flex-shrink: 0; padding: 2px 8px; border-radius: 4px;
   background: rgba(255,255,255,.2); font-size: 12px; font-weight: 700;
 }
-.announcement-text { min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+.announcement-text { min-width: 0; overflow-wrap: anywhere; white-space: normal; font-weight: 800; }
 
 /* All slides share a grid cell, reserving the tallest message's natural height. */
 .announcement-rotator { display: grid; overflow: hidden; }

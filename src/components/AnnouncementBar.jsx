@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { axiosClient } from '../utils/axiosClient';
 
 const styles = {
-  offer: 'bg-emerald-600 text-white',
-  alert: 'bg-rose-600 text-white',
-  new_launch: 'bg-blue-600 text-white',
-  info: 'bg-neutral-800 text-white',
+  offer: 'bg-emerald-900 text-amber-200',
+  alert: 'bg-rose-900 text-amber-200',
+  new_launch: 'bg-blue-900 text-amber-200',
+  info: 'bg-neutral-900 text-amber-200',
 };
 const safeLink = (value) => {
   if (typeof value !== 'string') return undefined;
