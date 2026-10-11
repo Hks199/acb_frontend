@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { calculateCartTotalAmount, clearCartApi, getCartbyId, removeCartItem, updateCartItem } from "../../api/cart";
@@ -7,23 +7,24 @@ import { createOrder, paymentVerificationApi } from "../../api/orders";
 import { useNavigate } from "react-router";
 import { notifyError, notifyToaster } from "../../components/notifyToaster";
 import { getAvailableCartQuantity, getStockLimitMessage } from "../../helper/cartStock";
+import CartPricingSummary from "../../components/CartPricingSummary";
 
 
 const Cart = () => {
   const { user, setCartCount } = useUserHook();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
-  const [originalPrice, setOriginalPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [totalDiscountedPrice, setTotalDiscountedPrice] = useState(0);
   const [btnDisable, setBtnDisable] = useState(false);
   const [pricing, setPricing] = useState(null);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [pricingError, setPricingError] = useState('');
   const pricingRequest = useRef(0);
+  const pricingInFlight = useRef(false);
   const confirmingOrder = useRef(false);
 
-  const getCartItems = async () => {
+  const getCartItems = useCallback(async () => {
+    if (!user?.userId) return;
     try {
       const resp = await getCartbyId(user.userId);
       if (resp && resp.data && resp.data.success) {
@@ -43,21 +44,21 @@ const Cart = () => {
       setCartItems([]);
       setCartCount(0);
     }
-  }
+  }, [user?.userId, setCartCount]);
 
-  const calculateCartAmount = async () => {
+  const calculateCartAmount = useCallback(async () => {
+    if (!user?.userId) return;
     const request = ++pricingRequest.current;
+    pricingInFlight.current = true;
     setPricingLoading(true);
     setPricingError('');
     try {
       const resp = await calculateCartTotalAmount(user.userId);
       if (request !== pricingRequest.current) return;
       if (resp && resp.data && resp.data.success) {
-        const totalAmt = resp.data.totalAmountAfterDiscount;
+        const totalAmt = resp.data.totalAmountToPay;
         setPricing(resp.data);
-        setOriginalPrice(resp.data.totalAmount);
         setTotalPrice(totalAmt);
-        setTotalDiscountedPrice(Math.round((resp.data.totalAmount - totalAmt) * 100) / 100);
       }
       else { throw new Error('Unable to calculate cart pricing.'); }
     }
@@ -66,14 +67,33 @@ const Cart = () => {
       setPricing(null);
       setPricingError(err.response?.data?.message || 'Unable to calculate the cart total. Please refresh.');
     }
-    finally { if (request === pricingRequest.current) setPricingLoading(false); }
-  }
+    finally {
+      if (request === pricingRequest.current) {
+        pricingInFlight.current = false;
+        setPricingLoading(false);
+      }
+    }
+  }, [user?.userId]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
     getCartItems();
     calculateCartAmount();
-  }, [])
+  }, [getCartItems, calculateCartAmount]);
+
+  useEffect(() => {
+    if (!user?.userId || btnDisable) return;
+    const refreshPricing = () => {
+      if (document.visibilityState === 'hidden' || pricingInFlight.current || confirmingOrder.current) return;
+      calculateCartAmount();
+    };
+    window.addEventListener('focus', refreshPricing);
+    document.addEventListener('visibilitychange', refreshPricing);
+    return () => {
+      window.removeEventListener('focus', refreshPricing);
+      document.removeEventListener('visibilitychange', refreshPricing);
+    };
+  }, [user?.userId, btnDisable, calculateCartAmount]);
 
   const clearCart = async () => {
     try {
@@ -81,8 +101,6 @@ const Cart = () => {
       if (resp && resp.data) {
         setCartItems([]);
         setTotalPrice(0);
-        setOriginalPrice(0);
-        setTotalDiscountedPrice(0);
         setPricing(null);
       }
     }
@@ -151,10 +169,7 @@ const Cart = () => {
         postalCode: user.pin_code,
         country: "India"
       },
-      paymentMethod: "UPI",
-      subtotal: totalPrice,
-      tax: 0,
-      deliveryCharge: 0
+      paymentMethod: "UPI"
     }
     // console.log("reqBody", reqBody);
     confirmingOrder.current = true;
@@ -233,27 +248,7 @@ const Cart = () => {
 
         <div className="w-full max-w-sm bg-[#FAFAFA] p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Summary</h3>
-          {pricingError && <p role="alert" className="text-red-600">{pricingError}</p>}
-          {pricing?.tshirtOffer && <p className="mb-3 text-green-700">{pricing.tshirtOffer.minimumQuantity}+ eligible T-shirts: ₹{pricing.tshirtOffer.unitPrice} each. Eligible quantity: {pricing.tshirtOffer.eligibleQuantity}.</p>}
-          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-            <span>Subtotal</span>
-            <span>{btnDisable || pricingLoading ? "..." : "₹" + originalPrice}</span>
-          </div>
-          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-            <span>Tax</span>
-            <span>{btnDisable ? "..." : "₹0"}</span>
-          </div>
-          <div className="flex justify-between py-3 border-b border-[#E5E5E5]">
-            <span>Shipping</span>
-            <span>{btnDisable ? "..." : "₹0"}</span>
-          </div>
-          <div className="flex justify-between pt-4 font-semibold text-lg">
-            <span>Total</span>
-            <span className="text-[#69D3A8]">{btnDisable || pricingLoading ? "..." : pricing ? "₹" + totalPrice : 'Unavailable'}</span>
-          </div>
-          {totalDiscountedPrice !== 0 && (
-            <div className="py-1.5 px-4 mt-3 mb-4 w-full bg-green-100 text-center text-[#69D3A8] text- rounded">{btnDisable || pricingLoading ? 'Updating savings…' : `You save ₹${totalDiscountedPrice}.`}</div>
-          )}
+          <CartPricingSummary pricing={pricing} loading={btnDisable || pricingLoading} error={pricingError} />
           {cartItems.length > 0 && (
             <button disabled={btnDisable || pricingLoading || !pricing} onClick={confirmOrder} className={`w-full ${btnDisable || pricingLoading || !pricing ? "bg-[#cccccc]" : "bg-[#F75E69]"} text-white py-2 rounded-md mb-3`}>
               {btnDisable ? "..." : "Confirm Order"}
