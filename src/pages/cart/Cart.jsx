@@ -4,10 +4,11 @@ import { FaPlus, FaMinus } from "react-icons/fa6";
 import { calculateCartTotalAmount, clearCartApi, getCartbyId, removeCartItem, updateCartItem } from "../../api/cart";
 import useUserHook from "../../context/UserContext";
 import { createOrder, paymentVerificationApi } from "../../api/orders";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { notifyError, notifyToaster } from "../../components/notifyToaster";
 import { getAvailableCartQuantity, getStockLimitMessage } from "../../helper/cartStock";
 import CartPricingSummary from "../../components/CartPricingSummary";
+import { getCartVariantId, findCartPriceLine } from "../../helper/cartPricing";
 
 
 const Cart = () => {
@@ -142,14 +143,14 @@ const Cart = () => {
 
     const itemsArr = [];
     for (let i = 0; i < cartItems.length; i++) {
-      const { product, quantity, variant } = cartItems[i];
+      const { product, quantity } = cartItems[i];
       const itemObj = {
         product_id: product._id,
         quantity: quantity,
       }
 
-      if (variant && variant._id) {
-        itemObj["variant_combination_id"] = variant?._id
+      if (getCartVariantId(cartItems[i])) {
+        itemObj["variant_combination_id"] = getCartVariantId(cartItems[i]);
       }
 
       itemsArr.push(itemObj);
@@ -241,14 +242,15 @@ const Cart = () => {
       <div className="flex flex-col lg:flex-row items-start gap-12">
         <div className="w-full md:flex-1">
           {cartItems.map((item, index) => (
-            <ListItem key={`${item.product._id}-${item.variant?._id || "default"}`} item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount}
-              priceLine={pricing?.items?.find((line) => String(line.productId) === String(item.product._id) && String(line.variantId || '') === String(item.variant?._id || ''))} updatingPrice={btnDisable || pricingLoading} />
+            <ListItem key={`${item.product._id}-${getCartVariantId(item) || "default"}`} item={item} index={index} setBtnDisable={setBtnDisable} cartItems={cartItems} setCartItems={setCartItems} getCartItems={getCartItems} calculateCartAmount={calculateCartAmount} setCartCount={setCartCount}
+              priceLine={findCartPriceLine(pricing?.items, item)} updatingPrice={btnDisable || pricingLoading} />
           ))}
         </div>
 
         <div className="w-full max-w-sm bg-[#FAFAFA] p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Summary</h3>
           <CartPricingSummary pricing={pricing} loading={btnDisable || pricingLoading} error={pricingError} />
+          {pricingError && <button type="button" onClick={calculateCartAmount} disabled={pricingLoading} className="my-3 underline">Retry price calculation</button>}
           {cartItems.length > 0 && (
             <button disabled={btnDisable || pricingLoading || !pricing} onClick={confirmOrder} className={`w-full ${btnDisable || pricingLoading || !pricing ? "bg-[#cccccc]" : "bg-[#F75E69]"} text-white py-2 rounded-md mb-3`}>
               {btnDisable ? "..." : "Confirm Order"}
@@ -272,7 +274,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
       quantity: qty
     }
 
-    if (item.variant) reqBody["variant_id"] = item.variant._id;
+    if (getCartVariantId(item)) reqBody["variant_id"] = getCartVariantId(item);
 
     try {
       const resp = await updateCartItem(reqBody);
@@ -329,7 +331,7 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
       product_id: item.product._id,
     }
 
-    if (item.variant) reqBody["variant_id"] = item.variant._id;
+    if (getCartVariantId(item)) reqBody["variant_id"] = getCartVariantId(item);
 
     try {
       const resp = await removeCartItem(reqBody);
@@ -348,16 +350,19 @@ const ListItem = ({ item, index, setBtnDisable, cartItems, setCartItems, getCart
         <img src={item.product.image} className="w-16 h-16 object-cover rounded-lg" />
         <div>
           <h4 className="font-semibold text-sm">{item.product.name}</h4>
-          <p className="text-[#F75E69]">{updatingPrice ? 'Updating price…' : priceLine ? `₹${priceLine.effectiveUnitPrice} each · ₹${priceLine.finalTotal} total` : 'Price unavailable'}</p>
+          <p className="text-[#F75E69]">{updatingPrice ? 'Updating price…' : priceLine ? `₹${priceLine.effectiveUnitPrice} each × ${item.quantity} = ₹${priceLine.finalTotal}` : `Listed price: ₹${item.variant?.price ?? item.fallback_price ?? 0} each (final price pending)`}</p>
+          {item.selectionUnavailable && <p role="alert" className="mt-1 text-sm text-red-700">
+            <Link className="underline font-semibold" to={`/product/${item.product._id}`}>Select size/color again</Link>, then remove this old selection from your cart.
+          </p>}
           {priceLine?.bulkOfferApplied && <p className="text-sm text-green-700">T-shirt offer applied</p>}
         </div>
       </div>
 
       <div className="mt-4 md:mt-0 flex self-end items-center gap-4">
         <div className="flex border rounded-md">
-          <button disabled={updatingPrice} onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
+          <button disabled={updatingPrice || item.selectionUnavailable} onClick={() => handleQuantity(false)} className="px-4 py-2 text-white bg-black rounded-l-md"><FaMinus /></button>
           <div className="px-4 font-semibold text-lg">{item.quantity}</div>
-          <button disabled={updatingPrice} onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
+          <button disabled={updatingPrice || item.selectionUnavailable} onClick={() => handleQuantity(true)} className="px-4 py-2 text-white bg-black rounded-r-md"><FaPlus /></button>
         </div>
 
         <button disabled={updatingPrice} onClick={deleteCartItems} className="text-2xl hover:text-[#F75E69]"><MdDelete /></button>

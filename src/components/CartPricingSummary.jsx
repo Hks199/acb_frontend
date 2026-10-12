@@ -19,6 +19,7 @@ function DiscountRow({ title, detail, amount }) {
   if (detail) {
     if (detail.reason === 'inactive') explanation = 'This discount is currently unavailable.';
     else if (detail.reason === 'existing_order') explanation = 'Available only on your first successful purchase. Unpaid or failed checkout attempts do not count.';
+    else if (detail.reason === 'tshirt_excluded') explanation = 'T-shirts are excluded from the first-order discount.';
     else if (detail.reason === 'below_minimum') {
       explanation = `Requires ${money(detail.minimumPurchaseAmount)} or more after product offers. Your qualifying total is ${money(detail.qualifyingAmount)}; add ${money(detail.minimumPurchaseAmount - detail.qualifyingAmount)} to qualify.`;
     } else if (detail.reason === 'excluded_by_offer') {
@@ -26,7 +27,9 @@ function DiscountRow({ title, detail, amount }) {
     } else {
       explanation = `${detail.percentage}% on ${money(detail.eligibleAmount)} of eligible products after product offers.`;
       if (detail.minimumPurchaseAmount > 0) explanation += ` Qualifies at ${money(detail.minimumPurchaseAmount)} or more.`;
-      if (detail.excludedAmount > 0) explanation += ` ${money(detail.excludedAmount)} covered by the T-shirt offer is excluded.`;
+      if (detail.excludedAmount > 0) explanation += detail.exclusion === 'tshirt'
+        ? ` ${money(detail.excludedAmount)} of T-shirts is excluded from the first-order discount.`
+        : ` ${money(detail.excludedAmount)} covered by the T-shirt offer is excluded.`;
     }
   }
   return <SummaryRow label={`${title}${detail?.percentage > 0 ? ` (${detail.percentage}%)` : ''}`} amount={amount} discount>
