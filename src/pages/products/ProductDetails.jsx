@@ -483,11 +483,24 @@ const ProductDetails = () => {
                     )}
 
                     {/* Buttons */}
-                    <label className="mt-5 flex items-center gap-3">Quantity
-                        <input aria-label="Quantity" type="number" min="1" step="1" value={quantity}
-                            className="w-20 rounded border p-2"
-                            onChange={(event) => setQuantity(event.target.value === '' ? '' : Number(event.target.value))} />
-                    </label>
+                    <div className="mt-5 flex items-center gap-3">
+                        <label htmlFor="product-quantity">Quantity</label>
+                        <div className="flex items-center overflow-hidden rounded border border-[#A1A1AA]">
+                            <button type="button" aria-label="Decrease quantity" disabled={quantity === '' || quantity <= 1}
+                                className="min-h-11 min-w-11 text-xl disabled:cursor-not-allowed disabled:opacity-40"
+                                onClick={() => setQuantity((current) => Math.max(1, Number(current) - 1))}>
+                                −
+                            </button>
+                            <input id="product-quantity" aria-label="Quantity" type="number" min="1" step="1" value={quantity}
+                                className="min-h-11 w-16 border-x border-[#A1A1AA] p-2 text-center appearance-textfield [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                onChange={(event) => setQuantity(event.target.value === '' ? '' : Number(event.target.value))} />
+                            <button type="button" aria-label="Increase quantity"
+                                className="min-h-11 min-w-11 text-xl"
+                                onClick={() => setQuantity((current) => Math.max(1, Number(current) + 1))}>
+                                +
+                            </button>
+                        </div>
+                    </div>
                     {pricing?.tshirtOffer && <p className="mt-3 text-green-700">Buy {pricing.tshirtOffer.minimumQuantity} or more eligible T-shirts for ₹{pricing.tshirtOffer.unitPrice} each.
                         {pricing.tshirtOffer.combineProducts && ' Mix eligible designs, sizes, and colors in your cart.'}</p>}
                     <p className="mt-3" aria-live="polite">{pricingLoading ? 'Calculating price…' : pricingError || (pricing ? `Total for ${quantity}: ₹${pricing.totalAmountToPay}` : '')}</p>
